@@ -11,12 +11,10 @@ import { DateSelector } from '@/components/DateSelector';
 import { TimelineView } from '@/components/TimelineView';
 import { WeekView } from '@/components/WeekView';
 import { ListView } from '@/components/ListView';
+import dynamic from 'next/dynamic';
 import { CourseDetailModal } from '@/components/CourseDetailModal';
-import { UrlModalInput } from '@/components/UrlModalInput';
 import { ExamRadarModal } from '@/components/ExamRadarModal';
-import { AnalyticsModal } from '@/components/AnalyticsModal';
 import { HomeworkModal } from '@/components/HomeworkModal';
-import { ShortcutsModal } from '@/components/ShortcutsModal';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { MobileActionSheet } from '@/components/MobileActionSheet';
 import { OfflineBanner } from '@/components/OfflineBanner';
@@ -32,9 +30,14 @@ import { ScheduleEvent } from '@/types/schedule';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { migrateFromLocalStorage } from '@/lib/idb';
-import { RevisionPlannerModal } from '@/components/RevisionPlannerModal';
-import { ScheduleComparatorModal } from '@/components/ScheduleComparatorModal';
 import { decodeHomeworkShare } from '@/lib/homeworkShare';
+
+// Lazy-loaded dialogs for fast initial LCP
+const AnalyticsModal = dynamic(() => import('@/components/AnalyticsModal').then(m => m.AnalyticsModal), { ssr: false });
+const RevisionPlannerModal = dynamic(() => import('@/components/RevisionPlannerModal').then(m => m.RevisionPlannerModal), { ssr: false });
+const ScheduleComparatorModal = dynamic(() => import('@/components/ScheduleComparatorModal').then(m => m.ScheduleComparatorModal), { ssr: false });
+const ShortcutsModal = dynamic(() => import('@/components/ShortcutsModal').then(m => m.ShortcutsModal), { ssr: false });
+const UrlModalInput = dynamic(() => import('@/components/UrlModalInput').then(m => m.UrlModalInput), { ssr: false });
 
 export default function SchedulePage() {
   const {

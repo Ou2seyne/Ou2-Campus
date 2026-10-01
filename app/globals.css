@@ -568,3 +568,28 @@ html.dark .pattern-tp:hover, [data-theme="dark"] .pattern-tp:hover {
     color: #000000 !important;
   }
 }
+
+/* High Contrast Mode (WCAG 2.2 AAA) */
+@media (prefers-contrast: more) {
+  :root {
+    --border: #000000;
+    --border-2: #000000;
+    --border-strong: #000000;
+    --muted: #000000;
+    --muted-2: #222222;
+  }
+  html.dark, [data-theme="dark"] {
+    --border: #FFFFFF;
+    --border-2: #FFFFFF;
+    --border-strong: #FFFFFF;
+    --muted: #FFFFFF;
+    --muted-2: #DDDDDD;
+  }
+  .btn-tactile, button, input, select {
+    border-width: 2px !important;
+  }
+  :focus-visible {
+    outline-width: 3px !important;
+    outline-offset: 3px !important;
+  }
+}
