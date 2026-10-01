@@ -21,6 +21,9 @@
 - **Centralisation des Composants :**
   - *Décision :* Tous les boutons, modales, champs de formulaire, badges et conteneurs doivent impérativement utiliser les composants de `components/ui/`.
   - *Justification :* Éradication des 14 variations disparates de boutons tactiles et standardisation des micro-interactions.
+- **Routage de la page `/_ui` en Next.js App Router :**
+  - *Décision :* Création du dossier `app/%5Fui/` au lieu de `app/_ui/`.
+  - *Justification :* En Next.js App Router, les dossiers préfixés par un underscore simple `_nom` sont traités comme des répertoires privés et ignorés du routage. Le codage d'URL `%5Fui` permet d'exposer publiquement la route réelle `/_ui`.
 - **BottomSheet Mobile & Dialog Desktop :**
   - *Décision :* Unification sous une API unique : affichage en feuille tiroir glissant depuis le bas avec geste de swipe-down (>70px) sur mobile (<640px), et modale centrée avec bordure supérieure 3px sur desktop (>=640px).
 

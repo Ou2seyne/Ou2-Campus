@@ -55,3 +55,9 @@ export const haptic = {
     }
   },
 };
+
+export type HapticType = keyof typeof haptic;
+
+export function triggerHaptic(type: HapticType): void {
+  haptic[type]?.();
+}
