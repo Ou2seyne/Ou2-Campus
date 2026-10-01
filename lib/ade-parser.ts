@@ -8,18 +8,20 @@ export function detectCategory(summary: string, description: string, rawCategori
   const sum = (summary || '').toUpperCase();
   const desc = (description || '').toUpperCase();
   const cats = (rawCategories || []).join(' ').toUpperCase();
+  const allText = `${sum} ${desc} ${cats}`;
 
   // 1. Examen / Contrôle / Partiel / Soutenance
   if (
-    sum.includes('EXAM') ||
-    sum.includes('CONTRÔLE') ||
-    sum.includes('CONTROLE') ||
-    sum.includes('PARTIEL') ||
-    sum.includes('ÉVALUATION') ||
-    sum.includes('EVALUATION') ||
-    sum.includes('SOUTENANCE') ||
-    sum.includes(' DS ') ||
-    sum.endsWith(' DS') ||
+    allText.includes('EXAM') ||
+    allText.includes('CONTRÔLE') ||
+    allText.includes('CONTROLE') ||
+    allText.includes('PARTIEL') ||
+    allText.includes('ÉVALUATION') ||
+    allText.includes('EVALUATION') ||
+    allText.includes('ÉPREUVE') ||
+    allText.includes('EPREUVE') ||
+    allText.includes('SOUTENANCE') ||
+    /\bDS\b/.test(sum) ||
     cats.includes('EXAM')
   ) {
     return 'EXAM';
@@ -145,7 +147,8 @@ export function extractDetailsFromDescription(rawDesc: string): {
     // Groups detection
     if (/^(?:Groupe|Groupes|Promo|Promotion|Section|TD|TP|Filière)\s*[:=]\s*(.*)$/i.test(line)) {
       const g = line.replace(/^(?:Groupe|Groupes|Promo|Promotion|Section|TD|TP|Filière)\s*[:=]\s*/i, '').trim();
-      groups.push(g);
+      const parts = g.split(/,\s*/).map(p => p.trim()).filter(Boolean);
+      groups.push(...parts);
       continue;
     }
 

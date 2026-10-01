@@ -6,7 +6,7 @@
  */
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
-import { HomeworkItem, ScheduleEvent, SavedSchedule } from '@/types/schedule';
+import { HomeworkItem, ScheduleEvent } from '@/types/schedule';
 
 const DB_NAME    = 'aura-campus-db';
 const DB_VERSION = 1;
@@ -39,7 +39,7 @@ function getDb(): Promise<IDBPDatabase<AuraCampusDB>> {
   }
   if (!dbPromise) {
     dbPromise = openDB<AuraCampusDB>(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion) {
+      upgrade(db) {
         // Homework store
         if (!db.objectStoreNames.contains('homework')) {
           const hwStore = db.createObjectStore('homework', { keyPath: 'id' });
