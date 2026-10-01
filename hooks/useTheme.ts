@@ -13,9 +13,11 @@ function applyTheme(mode: ThemeMode) {
     mode === 'dark' ||
     (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-  document.documentElement.classList.toggle('dark', isDark);
-  document.documentElement.classList.toggle('light', !isDark);
-  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+  const html = document.documentElement;
+  html.classList.toggle('dark', isDark);
+  html.classList.toggle('light', !isDark);
+  html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  html.style.colorScheme = isDark ? 'dark' : 'light';
 
   // Update the meta theme-color dynamically
   const lightMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"][media*="light"]');

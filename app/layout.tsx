@@ -65,6 +65,13 @@ export default function RootLayout({
       className={`${bricolage.variable} ${geistMono.variable} h-full`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem('aura_theme')||'auto';var d=m==='dark'||(m==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var el=document.documentElement;if(d){el.classList.add('dark');el.classList.remove('light');el.setAttribute('data-theme','dark');el.style.colorScheme='dark';}else{el.classList.add('light');el.classList.remove('dark');el.setAttribute('data-theme','light');el.style.colorScheme='light';}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
         className="min-h-full flex flex-col antialiased overscroll-contain"
         style={{
