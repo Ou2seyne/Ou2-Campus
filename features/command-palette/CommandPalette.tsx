@@ -3,12 +3,10 @@
 import React, {
   useState,
   useEffect,
-  useCallback,
   useRef,
   useMemo,
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
 import {
   Search,
   Calendar,
@@ -19,21 +17,27 @@ import {
   Moon,
   Sun,
   RotateCcw,
-  Download,
   Settings,
   Zap,
-  ChevronRight,
   Clock,
+  Focus,
+  History,
+  Users,
+  MapPin,
+  GraduationCap,
 } from 'lucide-react';
 import type { ScheduleEvent } from '@/types/schedule';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { HighlightText } from '@/lib/highlight';
+import { Kbd } from '@/components/ui/Kbd';
+import { triggerHaptic } from '@/lib/haptics';
 
 /* ── Types ───────────────────────────────────────────────── */
 
-interface CommandItem {
+export interface CommandItem {
   id: string;
-  type: 'command' | 'course' | 'room' | 'teacher';
+  type: 'action' | 'course' | 'room' | 'teacher' | 'group' | 'history';
   label: string;
   description?: string;
   icon?: React.ReactNode;
@@ -41,7 +45,7 @@ interface CommandItem {
   onSelect: () => void;
 }
 
-interface CommandPaletteProps {
+export interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   events: ScheduleEvent[];
@@ -55,28 +59,40 @@ interface CommandPaletteProps {
   onRefresh: () => void;
   onGoToToday: () => void;
   onSearchChange: (q: string) => void;
+  onSelectSubGroup?: (g: string) => void;
+  onToggleFocusMode?: () => void;
+  isFocusMode?: boolean;
 }
 
-/* ── Keyboard hook for Cmd+K ─────────────────────────────── */
+/* ── Keyboard Hook for Cmd+K (works anywhere including inputs) ─── */
 
 export function useCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      // ⌘K or Ctrl+K triggers palette regardless of active element
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
+        e.stopPropagation();
         setIsOpen((prev) => !prev);
       }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener('keydown', handler, { capture: true });
+    return () => window.removeEventListener('keydown', handler, { capture: true });
   }, []);
 
-  return { isOpen, open: () => setIsOpen(true), close: () => setIsOpen(false) };
+  return {
+    isOpen,
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+    toggle: () => setIsOpen((prev) => !prev),
+  };
 }
 
 /* ── CommandPalette Component ────────────────────────────── */
+
+const HISTORY_STORAGE_KEY = 'aura_palette_history';
 
 export function CommandPalette({
   isOpen,
@@ -92,186 +108,291 @@ export function CommandPalette({
   onRefresh,
   onGoToToday,
   onSearchChange,
+  onSelectSubGroup,
+  onToggleFocusMode,
+  isFocusMode = false,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const listRef  = useRef<HTMLUListElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [recentHistory, setRecentHistory] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+      return stored ? JSON.parse(stored).slice(0, 5) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  // Focus input when opened
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const saveToHistory = React.useCallback((item: string) => {
+    setRecentHistory((prev) => {
+      const updated = [item, ...prev.filter((h) => h !== item)].slice(0, 5);
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+      } catch {
+        // Ignore
+      }
+      return updated;
+    });
+  }, []);
+
+  // Focus input and reset on open
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
         inputRef.current?.focus();
         setQuery('');
         setActiveIndex(0);
-      }, 0);
+      }, 10);
     }
   }, [isOpen]);
 
-  const { containerRef, handleKeyDown: trapKeyDown } = useFocusTrap<HTMLDivElement>({
-    active: isOpen,
-    onClose,
-    returnFocus: true,
-  });
-
-  /* ── Static command list ────────────────────────────────── */
-  const staticCommands: CommandItem[] = useMemo(
+  /* ── 1. Static Action Commands ───────────────────────────── */
+  const actionCommands: CommandItem[] = useMemo(
     () => [
       {
-        id: 'view-day',
-        type: 'command',
+        id: 'cmd-view-day',
+        type: 'action',
         label: 'Vue Jour',
-        description: 'Voir les cours du jour sélectionné',
-        icon: <Calendar size={14} />,
+        description: 'Afficher la chronologie des cours du jour',
+        icon: <Calendar size={14} className="text-[var(--accent)]" />,
         shortcut: 'J',
         onSelect: () => { onViewChange('day'); onClose(); },
       },
       {
-        id: 'view-week',
-        type: 'command',
+        id: 'cmd-view-week',
+        type: 'action',
         label: 'Vue Semaine',
-        description: 'Voir la grille de la semaine',
-        icon: <CalendarDays size={14} />,
+        description: 'Grille horaire hebdomadaire 8h–20h',
+        icon: <CalendarDays size={14} className="text-[var(--accent)]" />,
         shortcut: 'S',
         onSelect: () => { onViewChange('week'); onClose(); },
       },
       {
-        id: 'view-list',
-        type: 'command',
+        id: 'cmd-view-list',
+        type: 'action',
         label: 'Vue Liste',
-        description: 'Liste complète du semestre',
-        icon: <List size={14} />,
+        description: 'Parcourir la liste complète du semestre',
+        icon: <List size={14} className="text-[var(--accent)]" />,
         shortcut: 'L',
         onSelect: () => { onViewChange('list'); onClose(); },
       },
       {
-        id: 'today',
-        type: 'command',
-        label: "Aller à aujourd'hui",
-        description: "Revenir à la date d'aujourd'hui",
-        icon: <Clock size={14} />,
+        id: 'cmd-today',
+        type: 'action',
+        label: "Aujourd'hui",
+        description: "Revenir immédiatement à la date d'aujourd'hui",
+        icon: <Clock size={14} className="text-emerald-500" />,
         shortcut: 'T',
         onSelect: () => { onGoToToday(); onClose(); },
       },
       {
-        id: 'exams',
-        type: 'command',
-        label: 'Radar des examens',
-        description: 'Voir les contrôles et partiels à venir',
-        icon: <Zap size={14} />,
+        id: 'cmd-exams',
+        type: 'action',
+        label: 'Radar des Examens',
+        description: 'Contrôles continus, partiels et comptes à rebours',
+        icon: <Zap size={14} className="text-red-500" />,
         shortcut: '>examen',
         onSelect: () => { onOpenExamRadar(); onClose(); },
       },
       {
-        id: 'homework',
-        type: 'command',
-        label: 'Devoirs & Rappels',
-        description: 'Gérer les devoirs et tâches',
-        icon: <BookOpen size={14} />,
+        id: 'cmd-homework',
+        type: 'action',
+        label: 'Devoirs & Tâches',
+        description: 'Gestionnaire de devoirs contextuel par matière',
+        icon: <BookOpen size={14} className="text-purple-500" />,
         shortcut: '>devoir',
         onSelect: () => { onOpenHomework(); onClose(); },
       },
       {
-        id: 'analytics',
-        type: 'command',
-        label: 'Statistiques',
-        description: 'Volume horaire et analyses',
-        icon: <BarChart2 size={14} />,
+        id: 'cmd-analytics',
+        type: 'action',
+        label: 'Statistiques & Volumes Horaires',
+        description: 'Répartition CM/TD/TP et analyse de charge',
+        icon: <BarChart2 size={14} className="text-amber-500" />,
+        shortcut: '>stats',
         onSelect: () => { onOpenAnalytics(); onClose(); },
       },
       {
-        id: 'sources',
-        type: 'command',
-        label: 'Gérer les sources ADE',
-        description: 'Ajouter ou changer le flux iCal',
-        icon: <Settings size={14} />,
-        onSelect: () => { onOpenSources(); onClose(); },
-      },
-      {
-        id: 'refresh',
-        type: 'command',
+        id: 'cmd-refresh',
+        type: 'action',
         label: 'Actualiser le planning',
-        description: 'Recharger le flux ADE maintenant',
-        icon: <RotateCcw size={14} />,
+        description: 'Forcer la resynchronisation du flux ADE',
+        icon: <RotateCcw size={14} className="text-[var(--muted)]" />,
         shortcut: 'R',
         onSelect: () => { onRefresh(); onClose(); },
       },
       {
-        id: 'theme',
-        type: 'command',
-        label: isDark ? 'Passer en mode clair' : 'Passer en mode sombre',
-        description: 'Basculer le thème de l\'interface',
-        icon: isDark ? <Sun size={14} /> : <Moon size={14} />,
+        id: 'cmd-focus',
+        type: 'action',
+        label: isFocusMode ? 'Quitter le Focus Mode' : 'Activer le Focus Mode Amphi',
+        description: 'Interface épurée plein écran sans distractions',
+        icon: <Focus size={14} className="text-[var(--accent)]" />,
+        shortcut: 'F',
+        onSelect: () => { onToggleFocusMode?.(); onClose(); },
+      },
+      {
+        id: 'cmd-sources',
+        type: 'action',
+        label: 'Changer de source ADE / Presets',
+        description: 'Gérer les liens iCalendar et plannings favoris',
+        icon: <Settings size={14} className="text-[var(--muted)]" />,
+        shortcut: '>sources',
+        onSelect: () => { onOpenSources(); onClose(); },
+      },
+      {
+        id: 'cmd-theme',
+        type: 'action',
+        label: isDark ? 'Basculer en Mode Clair' : 'Basculer en Mode Sombre',
+        description: 'Changer le thème visuel du cockpit',
+        icon: isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-400" />,
         shortcut: '>thème',
         onSelect: () => { onToggleDark(); onClose(); },
       },
     ],
-    [isDark, onClose, onGoToToday, onOpenAnalytics, onOpenExamRadar, onOpenHomework, onOpenSources, onRefresh, onToggleDark, onViewChange]
+    [isDark, isFocusMode, onClose, onGoToToday, onOpenAnalytics, onOpenExamRadar, onOpenHomework, onOpenSources, onRefresh, onToggleDark, onToggleFocusMode, onViewChange]
   );
 
-  /* ── Dynamic search results from events ─────────────────── */
-  const searchResults = useMemo((): CommandItem[] => {
+  /* ── 2. Filtered Results Engine ─────────────────────────── */
+  const results = useMemo((): CommandItem[] => {
     const q = query.trim().toLowerCase();
 
-    // > commands: show static list matching after '>'
+    // Prefix `>` exclusively displays actions
     if (q.startsWith('>')) {
-      const cmd = q.slice(1).trim();
-      return staticCommands.filter(
+      const filter = q.slice(1).trim();
+      if (!filter) return actionCommands;
+      return actionCommands.filter(
         (c) =>
-          c.label.toLowerCase().includes(cmd) ||
-          (c.description ?? '').toLowerCase().includes(cmd) ||
-          (c.shortcut?.replace('>', '').toLowerCase() ?? '').includes(cmd)
+          c.label.toLowerCase().includes(filter) ||
+          (c.description ?? '').toLowerCase().includes(filter) ||
+          (c.shortcut?.toLowerCase() ?? '').includes(filter)
       );
     }
 
-    if (q.length < 2) return staticCommands;
+    // Empty query: show recent history + default actions + groups
+    if (!q) {
+      const items: CommandItem[] = [];
 
-    const courseResults: CommandItem[] = [];
-    const rooms = new Set<string>();
-    const teachers = new Set<string>();
+      // History items
+      recentHistory.forEach((hist, i) => {
+        items.push({
+          id: `hist-${i}`,
+          type: 'history',
+          label: hist,
+          description: 'Recherche récente',
+          icon: <History size={14} className="text-[var(--muted)]" />,
+          onSelect: () => {
+            setQuery(hist);
+          },
+        });
+      });
+
+      // Quick groups if available
+      if (onSelectSubGroup) {
+        items.push(
+          {
+            id: 'grp-2-2',
+            type: 'group',
+            label: 'Groupe TP 2-2 ★',
+            description: 'Filtrer sur le sous-groupe principal',
+            icon: <Users size={14} className="text-amber-500" />,
+            onSelect: () => { onSelectSubGroup('2-2'); onClose(); },
+          },
+          {
+            id: 'grp-2-1',
+            type: 'group',
+            label: 'Groupe TP 2-1',
+            description: 'Filtrer sur le sous-groupe alternatif',
+            icon: <Users size={14} className="text-blue-500" />,
+            onSelect: () => { onSelectSubGroup('2-1'); onClose(); },
+          },
+          {
+            id: 'grp-all',
+            type: 'group',
+            label: 'Toute la promotion (Tous)',
+            description: 'Afficher tous les sous-groupes sans filtre',
+            icon: <Users size={14} className="text-emerald-500" />,
+            onSelect: () => { onSelectSubGroup('ALL'); onClose(); },
+          }
+        );
+      }
+
+      // Add actions
+      items.push(...actionCommands);
+      return items;
+    }
+
+    // Dynamic search across courses, rooms, teachers
+    const matches: CommandItem[] = [];
+
+    // Check actions first if they match
+    actionCommands.forEach((c) => {
+      if (
+        c.label.toLowerCase().includes(q) ||
+        (c.description ?? '').toLowerCase().includes(q)
+      ) {
+        matches.push(c);
+      }
+    });
+
+    const seenCourses = new Set<string>();
+    const seenRooms = new Set<string>();
+    const seenTeachers = new Set<string>();
 
     events.forEach((e) => {
-      const titleMatch   = e.cleanTitle.toLowerCase().includes(q);
-      const roomMatch    = e.room?.toLowerCase().includes(q);
-      const teacherMatch = e.teacher.toLowerCase().includes(q);
+      const titleLower = e.cleanTitle.toLowerCase();
+      const roomLower = (e.room || '').toLowerCase();
+      const teacherLower = (e.teacher || '').toLowerCase();
 
-      if (titleMatch) {
-        courseResults.push({
+      // Title match
+      if (titleLower.includes(q) && !seenCourses.has(e.cleanTitle)) {
+        seenCourses.add(e.cleanTitle);
+        matches.push({
           id: `course-${e.id}`,
           type: 'course',
           label: e.cleanTitle,
-          description: `${format(new Date(e.dtstart), 'EEE d MMM', { locale: fr })} · ${format(new Date(e.dtstart), 'HH:mm')} — ${e.room ?? ''}`,
-          icon: <Calendar size={14} />,
+          description: `${format(new Date(e.dtstart), 'EEE d MMM', { locale: fr })} · ${e.category} ${e.room ? `— ${e.room}` : ''}`,
+          icon: <Calendar size={14} className="text-[var(--accent)]" />,
           onSelect: () => {
+            saveToHistory(e.cleanTitle);
             onSearchChange(e.cleanTitle);
             onClose();
           },
         });
       }
-      if (roomMatch && e.room && !rooms.has(e.room)) {
-        rooms.add(e.room);
-        courseResults.push({
+
+      // Room match
+      if (e.room && roomLower.includes(q) && !seenRooms.has(e.room)) {
+        seenRooms.add(e.room);
+        matches.push({
           id: `room-${e.room}`,
           type: 'room',
-          label: e.room,
-          description: 'Salle — filtrer par cette salle',
-          icon: <ChevronRight size={14} />,
+          label: `Salle ${e.room}`,
+          description: `Filtrer tous les cours dans la salle ${e.room}`,
+          icon: <MapPin size={14} className="text-amber-500" />,
           onSelect: () => {
+            saveToHistory(e.room!);
             onSearchChange(e.room!);
             onClose();
           },
         });
       }
-      if (teacherMatch && e.teacher && !teachers.has(e.teacher)) {
-        teachers.add(e.teacher);
-        courseResults.push({
+
+      // Teacher match
+      if (e.teacher && teacherLower.includes(q) && !seenTeachers.has(e.teacher)) {
+        seenTeachers.add(e.teacher);
+        matches.push({
           id: `teacher-${e.teacher}`,
           type: 'teacher',
           label: e.teacher,
-          description: 'Enseignant — filtrer par ce professeur',
-          icon: <ChevronRight size={14} />,
+          description: `Filtrer tous les enseignements de ${e.teacher}`,
+          icon: <GraduationCap size={14} className="text-emerald-500" />,
           onSelect: () => {
+            saveToHistory(e.teacher);
             onSearchChange(e.teacher);
             onClose();
           },
@@ -279,178 +400,180 @@ export function CommandPalette({
       }
     });
 
-    return courseResults.slice(0, 12);
-  }, [query, staticCommands, events, onSearchChange, onClose]);
-
-  /* ── Keyboard navigation ─────────────────────────────────── */
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') { onClose(); return; }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, searchResults.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActiveIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      searchResults[activeIndex]?.onSelect();
-    }
-  };
+    return matches.slice(0, 30);
+  }, [actionCommands, events, onClose, onSearchChange, onSelectSubGroup, query, recentHistory, saveToHistory]);
 
   // Scroll active item into view
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
     const item = list.children[activeIndex] as HTMLElement | undefined;
-    item?.scrollIntoView({ block: 'nearest' });
+    if (item) {
+      item.scrollIntoView({ block: 'nearest' });
+    }
   }, [activeIndex]);
+
+  // Keyboard navigation inside palette
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      triggerHaptic('light');
+      setActiveIndex((prev) => (prev + 1) % Math.max(1, results.length));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      triggerHaptic('light');
+      setActiveIndex((prev) => (prev - 1 + results.length) % Math.max(1, results.length));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const current = results[activeIndex];
+      if (current) {
+        triggerHaptic('tap');
+        current.onSelect();
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+    }
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          className="palette-backdrop no-print"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 px-3 bg-black/60 backdrop-blur-xs no-print"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Palette de commandes"
         >
           <motion.div
             ref={containerRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Palette de commandes"
-            className="w-full max-w-2xl mx-4"
-            initial={{ y: -8, opacity: 0, scale: 0.98 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -8, opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.97, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.97, y: -8 }}
             transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-xl border rounded-xs shadow-tactile-dark overflow-hidden flex flex-col"
             style={{
               background: 'var(--surface)',
-              border: '1px solid var(--border-2)',
-              boxShadow: 'var(--el-dark)',
-              borderRadius: 'var(--r-1)',
-              overflow: 'hidden',
+              borderColor: 'var(--border-2)',
+              borderTop: '3px solid var(--accent)',
+              maxHeight: '80vh',
             }}
+            onKeyDown={handleKeyDown}
           >
-            {/* Input row */}
+            {/* Search Input Bar */}
             <div
-              className="flex items-center gap-3.5 px-5 py-4"
-              style={{ borderBottom: '1px solid var(--border)' }}
+              className="flex items-center gap-3 px-4 py-3 border-b shrink-0"
+              style={{
+                borderColor: 'var(--border)',
+                background: 'var(--surface-2)',
+              }}
             >
-              <Search size={20} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+              <Search size={16} className="text-[var(--muted)] shrink-0" />
               <input
                 ref={inputRef}
-                type="text"
-                placeholder="Rechercher un cours, une salle, un prof… ou taper > pour les commandes"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
                   setActiveIndex(0);
                 }}
-                onKeyDown={handleInputKeyDown}
-                className="flex-1 bg-transparent font-sans text-base outline-none placeholder:opacity-50"
-                style={{
-                  color: 'var(--text)',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '16px',
-                  border: 'none',
-                }}
+                placeholder="Rechercher un cours, enseignant, salle… (ou tapez > pour les actions)"
+                className="w-full font-sans text-xs sm:text-sm bg-transparent outline-none text-[var(--text)] placeholder-[var(--muted)]"
                 autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
+                spellCheck={false}
               />
-              <kbd
-                className="hidden sm:inline-flex font-mono text-xs px-2 py-0.5 border font-bold"
-                style={{
-                  background: 'var(--surface-2)',
-                  borderColor: 'var(--border-2)',
-                  color: 'var(--muted)',
-                  boxShadow: '1px 1px 0 var(--border-2)',
-                  borderRadius: '2px',
-                }}
-              >
-                Esc
-              </kbd>
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className="font-mono text-[10px] uppercase text-[var(--muted)] hover:text-[var(--text)] px-1.5 py-0.5 border rounded-xs"
+                  style={{ borderColor: 'var(--border-2)', background: 'var(--surface)' }}
+                >
+                  Effacer
+                </button>
+              )}
             </div>
 
-            {/* Results list */}
+            {/* Results List */}
             <ul
               ref={listRef}
+              className="flex-1 overflow-y-auto divide-y divide-[var(--border)] p-1"
               role="listbox"
-              className="overflow-y-auto py-1.5"
-              style={{ maxHeight: '460px' }}
             >
-              {searchResults.length === 0 ? (
-                <li
-                  className="px-5 py-10 text-center text-sm sm:text-base font-sans font-medium"
-                  style={{ color: 'var(--muted)' }}
-                >
-                  Aucun résultat pour « {query} »
+              {results.length === 0 ? (
+                <li className="p-8 text-center font-sans text-xs text-[var(--muted)]">
+                  Aucun résultat pour « {query} ». Tapez <Kbd>&gt;</Kbd> pour voir toutes les actions.
                 </li>
               ) : (
-                searchResults.map((item, i) => (
-                  <li
-                    key={item.id}
-                    role="option"
-                    aria-selected={i === activeIndex}
-                    onClick={item.onSelect}
-                    onMouseEnter={() => setActiveIndex(i)}
-                    className="flex items-center gap-3.5 px-5 py-3 cursor-pointer transition-colors"
-                    style={{
-                      background: i === activeIndex ? 'var(--surface-2)' : 'transparent',
-                      color: 'var(--text)',
-                    }}
-                  >
-                    <span style={{ color: 'var(--muted)', flexShrink: 0 }}>
-                      {item.icon}
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span className="block font-sans text-sm sm:text-base font-bold truncate">
-                        {item.label}
-                      </span>
-                      {item.description && (
-                        <span
-                          className="block font-mono text-xs truncate mt-0.5"
-                          style={{ color: 'var(--muted)' }}
+                results.map((item, idx) => {
+                  const isActive = idx === activeIndex;
+                  return (
+                    <li
+                      key={item.id}
+                      role="option"
+                      aria-selected={isActive}
+                      onClick={() => {
+                        triggerHaptic('tap');
+                        item.onSelect();
+                      }}
+                      onMouseEnter={() => setActiveIndex(idx)}
+                      className={`btn-tactile px-3.5 py-2.5 flex items-center justify-between gap-3 cursor-pointer rounded-xs transition-colors ${
+                        isActive
+                          ? 'bg-[var(--accent-dim)] border border-[var(--accent)] text-[var(--text)]'
+                          : 'hover:bg-[var(--surface-2)] text-[var(--text-2)] border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div
+                          className="w-6 h-6 rounded-xs border flex items-center justify-center shrink-0"
+                          style={{
+                            background: isActive ? 'var(--surface)' : 'var(--surface-2)',
+                            borderColor: 'var(--border-2)',
+                          }}
                         >
-                          {item.description}
-                        </span>
+                          {item.icon}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="font-sans font-700 text-xs sm:text-sm leading-tight truncate">
+                            <HighlightText text={item.label} query={query.replace(/^>/, '')} />
+                          </p>
+                          {item.description && (
+                            <p className="font-mono text-[10px] text-[var(--muted)] truncate">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {item.shortcut && (
+                        <Kbd className="shrink-0">{item.shortcut}</Kbd>
                       )}
-                    </span>
-                    {item.shortcut && (
-                      <kbd
-                        className="font-mono text-xs px-2 py-0.5 border shrink-0 font-bold"
-                        style={{
-                          background: 'var(--surface-3)',
-                          borderColor: 'var(--border-2)',
-                          color: 'var(--muted)',
-                          boxShadow: '1px 1px 0 var(--border-2)',
-                          borderRadius: '2px',
-                        }}
-                      >
-                        {item.shortcut}
-                      </kbd>
-                    )}
-                  </li>
-                ))
+                    </li>
+                  );
+                })
               )}
             </ul>
 
-            {/* Footer hint */}
+            {/* Footer / Instructions */}
             <div
-              className="flex items-center gap-3 px-4 py-2 border-t font-mono text-[10px]"
-              style={{ borderColor: 'var(--border)', color: 'var(--muted-2)' }}
+              className="px-4 py-2 border-t flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-[var(--muted)] shrink-0"
+              style={{
+                borderColor: 'var(--border)',
+                background: 'var(--surface-2)',
+              }}
             >
-              <span>↑↓ naviguer</span>
-              <span>↵ sélectionner</span>
-              <span>esc fermer</span>
-              <span className="ml-auto">Tapez <b style={{ color: 'var(--muted)' }}>&gt;</b> pour les commandes</span>
+              <div className="flex items-center gap-3">
+                <span>Naviguer <Kbd>↑</Kbd> <Kbd>↓</Kbd></span>
+                <span>Ouvrir <Kbd>↵</Kbd></span>
+                <span>Fermer <Kbd>Esc</Kbd></span>
+              </div>
+              <span>Préfixe <Kbd>&gt;</Kbd> pour les actions rapides</span>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

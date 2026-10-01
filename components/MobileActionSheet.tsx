@@ -1,23 +1,21 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import {
   RotateCw,
   Sun,
   Moon,
   BarChart3,
-  Link,
   HelpCircle,
-  X,
   Smartphone,
   ChevronRight,
-  CheckCircle2,
-  Search,
+  Focus,
+  Calendar,
 } from 'lucide-react';
-import { haptic } from '@/lib/haptics';
+import { triggerHaptic } from '@/lib/haptics';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 
-interface MobileActionSheetProps {
+export interface MobileActionSheetProps {
   isOpen: boolean;
   onClose: () => void;
   isStandalone: boolean;
@@ -32,7 +30,8 @@ interface MobileActionSheetProps {
   isOnline: boolean;
   scheduleName?: string;
   lastFetchedAt?: string | null;
-  onFocusSearch?: () => void;
+  onToggleFocusMode?: () => void;
+  isFocusMode?: boolean;
 }
 
 export function MobileActionSheet({
@@ -50,274 +49,158 @@ export function MobileActionSheet({
   isOnline,
   scheduleName = 'Aura Campus',
   lastFetchedAt,
-  onFocusSearch,
+  onToggleFocusMode,
+  isFocusMode = false,
 }: MobileActionSheetProps) {
-  if (!isOpen) return null;
+  const handleAction = (cb: () => void) => {
+    triggerHaptic('tap');
+    onClose();
+    cb();
+  };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center p-0 overflow-hidden sm:hidden"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Menu des actions mobiles"
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title={scheduleName}
+      accentColor="var(--accent)"
     >
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={() => {
-          haptic.light();
-          onClose();
-        }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-      />
-
-      {/* Sheet Content */}
-      <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-        className="relative w-full max-h-[85vh] flex flex-col overflow-hidden z-10 border-t shadow-tactile-dark rounded-t-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]"
-        style={{
-          background: 'var(--surface)',
-          borderColor: 'var(--border-2)',
-          color: 'var(--text)',
-        }}
-      >
-        {/* Grabber */}
-        <div className="w-full pt-2.5 pb-1 flex justify-center bg-[var(--surface-2)]">
-          <div className="sheet-grabber" />
-        </div>
-
-        {/* Header */}
+      <div className="space-y-4 font-sans text-xs">
+        {/* Status card */}
         <div
-          className="flex items-center justify-between px-6 py-4 border-b"
+          className="p-3 border rounded-xs flex items-center justify-between"
           style={{
-            borderColor: 'var(--border)',
             background: 'var(--surface-2)',
+            borderColor: 'var(--border-2)',
           }}
         >
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-extrabold tracking-tight leading-tight">
-                {scheduleName}
-              </h3>
-              {isStandalone ? (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-xs border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> PWA
-                </span>
-              ) : (
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-xs border border-[var(--border-2)] bg-[var(--surface)] text-[var(--muted)]">
-                  WEB
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-[var(--muted)] mt-1 font-mono">
-              {isOnline ? 'En ligne · Synchronisation active' : 'Hors-ligne · Données en cache local'}
+          <div className="space-y-0.5">
+            <span className="font-mono text-[10px] uppercase text-[var(--muted)] font-bold">
+              État de la synchronisation
+            </span>
+            <p className="font-sans font-700 text-xs" style={{ color: 'var(--text)' }}>
+              {isOnline ? 'Connecté · Données locales à jour' : 'Mode Hors-ligne activé'}
             </p>
           </div>
+          {lastFetchedAt && (
+            <span className="font-mono text-[10px] text-[var(--muted)]">
+              {new Date(lastFetchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+        </div>
 
+        {/* Primary actions list */}
+        <div className="border rounded-xs divide-y divide-[var(--border)] overflow-hidden shadow-tactile-xs" style={{ background: 'var(--surface)', borderColor: 'var(--border-2)' }}>
+          {/* Refresh */}
           <button
-            onClick={() => {
-              haptic.light();
-              onClose();
-            }}
-            className="p-2 rounded-xs text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
-            aria-label="Fermer"
+            type="button"
+            onClick={() => handleAction(onRefresh)}
+            disabled={isRefreshing}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-[var(--surface-2)] transition-colors text-left"
           >
-            <X className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <RotateCw size={16} className={`text-[var(--muted)] ${isRefreshing ? 'animate-spin text-[var(--accent)]' : ''}`} />
+              <span className="font-700 text-[var(--text)]">Actualiser le planning</span>
+            </div>
+            <ChevronRight size={15} className="text-[var(--muted)]" />
+          </button>
+
+          {/* Sources ADE */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenAddModal)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-[var(--surface-2)] transition-colors text-left"
+          >
+            <div className="flex items-center gap-3">
+              <Calendar size={16} className="text-[var(--muted)]" />
+              <span className="font-700 text-[var(--text)]">Emplois du temps & Groupes</span>
+            </div>
+            <ChevronRight size={15} className="text-[var(--muted)]" />
+          </button>
+
+          {/* Analytics */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenAnalytics)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-[var(--surface-2)] transition-colors text-left"
+          >
+            <div className="flex items-center gap-3">
+              <BarChart3 size={16} className="text-[var(--muted)]" />
+              <span className="font-700 text-[var(--text)]">Statistiques & Volumes CM/TD/TP</span>
+            </div>
+            <ChevronRight size={15} className="text-[var(--muted)]" />
+          </button>
+
+          {/* Focus mode */}
+          {onToggleFocusMode && (
+            <button
+              type="button"
+              onClick={() => handleAction(onToggleFocusMode)}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-[var(--surface-2)] transition-colors text-left"
+            >
+              <div className="flex items-center gap-3">
+                <Focus size={16} className="text-[var(--muted)]" />
+                <span className="font-700 text-[var(--text)]">
+                  {isFocusMode ? 'Quitter le Mode Focus' : 'Activer le Mode Focus Amphi'}
+                </span>
+              </div>
+              <span className="font-mono text-[10px] uppercase font-bold text-[var(--muted)]">
+                {isFocusMode ? 'ON' : 'OFF'}
+              </span>
+            </button>
+          )}
+
+          {/* Shortcuts info */}
+          <button
+            type="button"
+            onClick={() => handleAction(onOpenShortcuts)}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-[var(--surface-2)] transition-colors text-left"
+          >
+            <div className="flex items-center gap-3">
+              <HelpCircle size={16} className="text-[var(--muted)]" />
+              <span className="font-700 text-[var(--text)]">Raccourcis Clavier & Aide</span>
+            </div>
+            <ChevronRight size={15} className="text-[var(--muted)]" />
           </button>
         </div>
 
-        {/* Action Items List */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-3">
-          {/* PWA Install Banner Button */}
-          {!isStandalone && (
-            <button
-              onClick={() => {
-                haptic.tap();
-                onClose();
-                onOpenInstallSheet();
-              }}
-              className="btn-tactile w-full flex items-center justify-between p-4 rounded-xs border shadow-tactile-sm transition-all text-left group"
-              style={{
-                background: 'var(--accent)',
-                borderColor: 'var(--accent)',
-                color: '#fff',
-              }}
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-9 h-9 rounded-xs bg-white/20 flex items-center justify-center text-white shrink-0">
-                  <Smartphone className="w-5 h-5" strokeWidth={2.2} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-extrabold">Installer l&apos;application</span>
-                    <span className="text-[10px] font-mono font-black uppercase px-1.5 py-0.2 rounded-xs bg-white text-[var(--accent)]">
-                      PWA
-                    </span>
-                  </div>
-                  <p className="text-xs text-white/80 mt-0.5 leading-tight">
-                    Accès instantané &amp; hors-ligne sur votre écran d&apos;accueil
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="w-4.5 h-4.5 text-white/70 group-hover:translate-x-0.5 transition-transform shrink-0" />
-            </button>
-          )}
-
-          {/* Actualiser */}
+        {/* Theme and Install */}
+        <div className="flex items-center gap-2 pt-1">
           <button
+            type="button"
             onClick={() => {
-              haptic.tap();
-              onRefresh();
-              onClose();
-            }}
-            disabled={isRefreshing}
-            className="btn-tactile w-full flex items-center justify-between p-3.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors text-left min-h-[52px]"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xs bg-[var(--surface)] border border-[var(--border-2)] flex items-center justify-center text-[var(--text)] shrink-0">
-                <RotateCw className={`w-4.5 h-4.5 ${isRefreshing ? 'spinner text-[var(--accent)]' : ''}`} />
-              </div>
-              <div>
-                <span className="text-sm font-bold block">Actualiser le planning ADE</span>
-                <span className="text-xs text-[var(--muted)] font-mono">
-                  {lastFetchedAt ? `Dernier sync : ${lastFetchedAt.split('T')[1]?.substring(0, 5) || 'récent'}` : 'Télécharger les dernières modifications'}
-                </span>
-              </div>
-            </div>
-            <ChevronRight className="w-4.5 h-4.5 text-[var(--muted)] shrink-0" />
-          </button>
-
-          {/* Recherche rapide */}
-          {onFocusSearch && (
-            <button
-              onClick={() => {
-                haptic.tap();
-                onClose();
-                onFocusSearch();
-              }}
-              className="btn-tactile w-full flex items-center justify-between p-3.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors text-left min-h-[52px]"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-9 h-9 rounded-xs bg-[var(--surface)] border border-[var(--border-2)] flex items-center justify-center text-[var(--accent)] shrink-0">
-                  <Search className="w-4.5 h-4.5" />
-                </div>
-                <div>
-                  <span className="text-sm font-bold block">Recherche de cours / enseignant</span>
-                  <span className="text-xs text-[var(--muted)] font-mono">
-                    Filtrer par matière, salle ou professeur
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4.5 h-4.5 text-[var(--muted)] shrink-0" />
-            </button>
-          )}
-
-          {/* Basculer Thème */}
-          <button
-            onClick={() => {
-              haptic.tap();
+              triggerHaptic('tap');
               onToggleDark();
             }}
-            className="btn-tactile w-full flex items-center justify-between p-3.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors text-left min-h-[52px]"
+            className="btn-tactile flex-1 py-2.5 px-3 border rounded-xs font-sans font-700 text-xs flex items-center justify-center gap-2"
+            style={{
+              background: 'var(--surface-2)',
+              borderColor: 'var(--border-2)',
+              color: 'var(--text)',
+              boxShadow: 'var(--el-1)',
+            }}
           >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xs bg-[var(--surface)] border border-[var(--border-2)] flex items-center justify-center text-[var(--text)] shrink-0">
-                {isDark ? <Sun className="w-4.5 h-4.5 text-amber-500" /> : <Moon className="w-4.5 h-4.5 text-blue-600" />}
-              </div>
-              <div>
-                <span className="text-sm font-bold block">Apparence du thème</span>
-                <span className="text-xs text-[var(--muted)] font-mono">
-                  Actuellement : {isDark ? 'Mode Sombre (Dark)' : 'Mode Clair (Light)'}
-                </span>
-              </div>
-            </div>
-            <span className="text-xs font-mono font-bold px-2 py-1 rounded-xs border border-[var(--border-2)] bg-[var(--surface)]">
-              {isDark ? 'Passer en clair' : 'Passer en sombre'}
-            </span>
+            {isDark ? <Sun size={15} /> : <Moon size={15} />}
+            <span>{isDark ? 'Mode Clair' : 'Mode Sombre'}</span>
           </button>
 
-          {/* Statistiques */}
-          <button
-            onClick={() => {
-              haptic.tap();
-              onClose();
-              onOpenAnalytics();
-            }}
-            className="btn-tactile w-full flex items-center justify-between p-3.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors text-left min-h-[52px]"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xs bg-[var(--surface)] border border-[var(--border-2)] flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                <BarChart3 className="w-4.5 h-4.5" />
-              </div>
-              <div>
-                <span className="text-sm font-bold block">Statistiques &amp; Volumes</span>
-                <span className="text-xs text-[var(--muted)] font-mono">
-                  Volume horaire, répartition CM/TD/TP
-                </span>
-              </div>
-            </div>
-            <ChevronRight className="w-4.5 h-4.5 text-[var(--muted)] shrink-0" />
-          </button>
-
-          {/* Gérer URLs ADE */}
-          <button
-            onClick={() => {
-              haptic.tap();
-              onClose();
-              onOpenAddModal();
-            }}
-            className="btn-tactile w-full flex items-center justify-between p-3.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors text-left min-h-[52px]"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xs bg-[var(--surface)] border border-[var(--border-2)] flex items-center justify-center text-[var(--text)] shrink-0">
-                <Link className="w-4.5 h-4.5" />
-              </div>
-              <div>
-                <span className="text-sm font-bold block">Gérer les flux ADE</span>
-                <span className="text-xs text-[var(--muted)] font-mono">
-                  Changer d&apos;URL, filière ou groupe TD
-                </span>
-              </div>
-            </div>
-            <ChevronRight className="w-4.5 h-4.5 text-[var(--muted)] shrink-0" />
-          </button>
-
-          {/* Raccourcis et gestes */}
-          <button
-            onClick={() => {
-              haptic.tap();
-              onClose();
-              onOpenShortcuts();
-            }}
-            className="btn-tactile w-full flex items-center justify-between p-3.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] transition-colors text-left min-h-[52px]"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-xs bg-[var(--surface)] border border-[var(--border-2)] flex items-center justify-center text-[var(--text)] shrink-0">
-                <HelpCircle className="w-4.5 h-4.5" />
-              </div>
-              <div>
-                <span className="text-sm font-bold block">Gestes mobiles &amp; Astuces</span>
-                <span className="text-xs text-[var(--muted)] font-mono">
-                  Glisser gauche/droite pour changer de jour
-                </span>
-              </div>
-            </div>
-            <ChevronRight className="w-4.5 h-4.5 text-[var(--muted)] shrink-0" />
-          </button>
+          {!isStandalone && (
+            <button
+              type="button"
+              onClick={() => handleAction(onOpenInstallSheet)}
+              className="btn-tactile flex-1 py-2.5 px-3 border rounded-xs font-sans font-700 text-xs flex items-center justify-center gap-2 text-[var(--accent)]"
+              style={{
+                background: 'var(--accent-dim)',
+                borderColor: 'var(--accent)',
+                boxShadow: 'var(--el-accent)',
+              }}
+            >
+              <Smartphone size={15} />
+              <span>Installer PWA</span>
+            </button>
+          )}
         </div>
-
-        {/* Footer info */}
-        <div className="px-5 pt-1 text-center">
-          <p className="text-[10px] font-mono text-[var(--muted-2)]">
-            Aura Campus Mobile PWA · Cache hors-ligne sécurisé
-          </p>
-        </div>
-      </motion.div>
-    </div>
+      </div>
+    </BottomSheet>
   );
 }

@@ -25,14 +25,13 @@ import { PwaInstallSheet } from '@/components/PwaInstallSheet';
 import { PullToRefresh } from '@/components/PullToRefresh';
 import { DailyBriefingCard } from '@/components/DailyBriefingCard';
 import { usePwa } from '@/hooks/usePwa';
+import { ContextBanner } from '@/components/ContextBanner';
 import { CommandPalette, useCommandPalette } from '@/features/command-palette/CommandPalette';
 import { Toast } from '@/components/ui/Segmented';
 import { ScheduleEvent } from '@/types/schedule';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { migrateFromLocalStorage } from '@/lib/idb';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 
 export default function SchedulePage() {
   const {
@@ -110,6 +109,17 @@ export default function SchedulePage() {
   const [homeworkContextCourse, setHomeworkContextCourse] = useState<string>('');
   const [hudMessage, setHudMessage]                 = useState<string | null>(null);
   const [isFocusMode, setIsFocusMode]               = useState(false);
+  const [singleKeyShortcutsEnabled, setSingleKeyShortcutsEnabled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem('aura_single_key_shortcuts') !== 'false';
+  });
+
+  const handleToggleSingleKeyShortcuts = (enabled: boolean) => {
+    setSingleKeyShortcutsEnabled(enabled);
+    try {
+      localStorage.setItem('aura_single_key_shortcuts', String(enabled));
+    } catch {}
+  };
 
   // Command palette
   const palette = useCommandPalette();
@@ -231,8 +241,33 @@ export default function SchedulePage() {
       const tag = target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable) return;
 
-      // Cmd/Ctrl+K → command palette (handled by useCommandPalette too)
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') return;
+      // Cmd/Ctrl+K → command palette
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') return;
+
+      // Universal navigation keys (always active)
+      if (e.key === 'ArrowLeft') {
+        handlePrev();
+        triggerHud(viewMode === 'week' ? 'Semaine préc. [←]' : 'Jour préc. [←]');
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        handleNext();
+        triggerHud(viewMode === 'week' ? 'Semaine suiv. [→]' : 'Jour suiv. [→]');
+        return;
+      }
+      if (e.key === 'Escape') {
+        if (selectedEvent) setSelectedEvent(null);
+        else if (isExamRadarOpen) setIsExamRadarOpen(false);
+        else if (isAnalyticsOpen) setIsAnalyticsOpen(false);
+        else if (isHomeworkOpen) setIsHomeworkOpen(false);
+        else if (isShortcutsOpen) setIsShortcutsOpen(false);
+        else if (isUrlModalOpen) setIsUrlModalOpen(false);
+        else if (isFocusMode) setIsFocusMode(false);
+        return;
+      }
+
+      // Single-character shortcuts guarded by WCAG 2.1.4 setting
+      if (!singleKeyShortcutsEnabled) return;
 
       switch (e.key) {
         case 'j': case 'J':
@@ -247,14 +282,6 @@ export default function SchedulePage() {
           setViewMode('list');
           triggerHud('Vue Liste [L]');
           break;
-        case 'ArrowLeft':
-          handlePrev();
-          triggerHud(viewMode === 'week' ? 'Semaine préc. [←]' : 'Jour préc. [←]');
-          break;
-        case 'ArrowRight':
-          handleNext();
-          triggerHud(viewMode === 'week' ? 'Semaine suiv. [→]' : 'Jour suiv. [→]');
-          break;
         case 't': case 'T':
           goToToday();
           triggerHud("Aujourd'hui [T]");
@@ -265,25 +292,19 @@ export default function SchedulePage() {
           break;
         case 'f': case 'F':
           setIsFocusMode((prev) => !prev);
-          triggerHud(isFocusMode ? 'Mode normal [F]' : 'Focus Mode [F]');
+          triggerHud(!isFocusMode ? 'Focus Mode [F]' : 'Mode normal [F]');
           break;
         case 'g': case 'G':
-          // Go-to-date: open command palette and preType date
           palette.open();
           triggerHud('Aller à… [G]');
           break;
+        case '/':
+          e.preventDefault();
+          (document.querySelector('input[type="search"]') as HTMLInputElement)?.focus();
+          triggerHud('Recherche [/]');
+          break;
         case '?':
           if (e.shiftKey || e.key === '?') setIsShortcutsOpen((prev) => !prev);
-          break;
-        case 'Escape':
-          // Close topmost modal
-          if (selectedEvent) setSelectedEvent(null);
-          else if (isExamRadarOpen) setIsExamRadarOpen(false);
-          else if (isAnalyticsOpen) setIsAnalyticsOpen(false);
-          else if (isHomeworkOpen) setIsHomeworkOpen(false);
-          else if (isShortcutsOpen) setIsShortcutsOpen(false);
-          else if (isUrlModalOpen) setIsUrlModalOpen(false);
-          else if (isFocusMode) setIsFocusMode(false);
           break;
       }
     };
@@ -296,7 +317,7 @@ export default function SchedulePage() {
   }, [
     handlePrev, handleNext, goToToday, refreshSchedule, setViewMode, viewMode,
     selectedEvent, isExamRadarOpen, isAnalyticsOpen, isHomeworkOpen,
-    isShortcutsOpen, isUrlModalOpen, isFocusMode, palette,
+    isShortcutsOpen, isUrlModalOpen, isFocusMode, palette, singleKeyShortcutsEnabled,
   ]);
 
   return (
@@ -384,6 +405,9 @@ export default function SchedulePage() {
         onRefresh={refreshSchedule}
         onGoToToday={goToToday}
         onSearchChange={setSearchQuery}
+        onSelectSubGroup={setSelectedSubGroup}
+        onToggleFocusMode={() => setIsFocusMode((prev) => !prev)}
+        isFocusMode={isFocusMode}
       />
 
       {/* Focus mode overlay hides header/controls */}
@@ -415,6 +439,12 @@ export default function SchedulePage() {
             onRemoveSchedule={removeSchedule}
           />
           <OfflineBanner isOnline={isOnline} showReconnectedBadge={showReconnectedBadge} />
+          <ContextBanner
+            events={events}
+            lastFetchedAt={lastFetchedAt}
+            onOpenExamRadar={() => setIsExamRadarOpen(true)}
+            onSelectEvent={setSelectedEvent}
+          />
         </>
       )}
 
@@ -749,6 +779,8 @@ export default function SchedulePage() {
       <ShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+        singleKeyEnabled={singleKeyShortcutsEnabled}
+        onToggleSingleKey={handleToggleSingleKeyShortcuts}
       />
 
       {/* Mobile action sheet */}
@@ -767,12 +799,8 @@ export default function SchedulePage() {
         isOnline={isOnline}
         scheduleName={currentSchedule?.name}
         lastFetchedAt={lastFetchedAt}
-        onFocusSearch={() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => {
-            (document.querySelector('input[type="search"]') as HTMLInputElement)?.focus();
-          }, 150);
-        }}
+        onToggleFocusMode={() => setIsFocusMode((prev) => !prev)}
+        isFocusMode={isFocusMode}
       />
 
       {/* PWA Install sheet */}

@@ -1,116 +1,102 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Command } from 'lucide-react';
+import React from 'react';
+import { ShieldCheck } from 'lucide-react';
+import { Dialog } from '@/components/ui/Dialog';
+import { Kbd } from '@/components/ui/Kbd';
+import { Switch } from '@/components/ui/Switch';
 
-interface ShortcutsModalProps {
+export interface ShortcutsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  singleKeyEnabled?: boolean;
+  onToggleSingleKey?: (enabled: boolean) => void;
 }
 
 const SHORTCUTS = [
-  { key: 'J', section: 'Navigation', action: 'Afficher la vue Jour' },
-  { key: 'S', section: 'Navigation', action: 'Afficher la vue Semaine' },
-  { key: 'L', section: 'Navigation', action: 'Afficher la vue Liste' },
-  { key: '←', section: 'Navigation', action: 'Jour ou semaine précédent(e)' },
-  { key: '→', section: 'Navigation', action: 'Jour ou semaine suivant(e)' },
-  { key: 'T', section: 'Navigation', action: "Revenir à aujourd'hui" },
-  { key: 'G', section: 'Navigation', action: 'Aller à une date précise' },
-  { key: 'R', section: 'Actions', action: 'Rafraîchir le flux ADE Campus' },
-  { key: 'F', section: 'Actions', action: 'Activer / quitter le Focus Mode' },
-  { key: '⌘K', section: 'Actions', action: 'Ouvrir la palette de commandes' },
-  { key: '/', section: 'Actions', action: 'Recherche rapide de cours / salle' },
-  { key: '?', section: 'Interface', action: 'Afficher ce tableau de raccourcis' },
-  { key: 'Esc', section: 'Interface', action: 'Fermer les modales ouvertes' },
+  { key: 'J', section: 'Navigation', action: 'Basculer en Vue Jour', singleKey: true },
+  { key: 'S', section: 'Navigation', action: 'Basculer en Vue Semaine', singleKey: true },
+  { key: 'L', section: 'Navigation', action: 'Basculer en Vue Liste', singleKey: true },
+  { key: '←', section: 'Navigation', action: 'Jour ou semaine précédent(e)', singleKey: false },
+  { key: '→', section: 'Navigation', action: 'Jour ou semaine suivant(e)', singleKey: false },
+  { key: 'T', section: 'Navigation', action: "Revenir immédiatement à Aujourd'hui", singleKey: true },
+  { key: 'G', section: 'Navigation', action: 'Aller à une date précise / Recherche', singleKey: true },
+  { key: 'R', section: 'Actions', action: 'Actualiser le flux ADE Campus', singleKey: true },
+  { key: 'F', section: 'Actions', action: 'Activer / quitter le Focus Mode Amphi', singleKey: true },
+  { key: '⌘K', section: 'Actions', action: 'Ouvrir la palette de commandes', singleKey: false },
+  { key: '/', section: 'Actions', action: 'Donner le focus à la recherche', singleKey: true },
+  { key: '?', section: 'Aide', action: 'Afficher ce tableau de raccourcis', singleKey: true },
+  { key: 'Esc', section: 'Aide', action: 'Fermer toute boîte de dialogue active', singleKey: false },
 ];
 
-export function ShortcutsModal({ isOpen, onClose }: ShortcutsModalProps) {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
+export function ShortcutsModal({
+  isOpen,
+  onClose,
+  singleKeyEnabled = true,
+  onToggleSingleKey,
+}: ShortcutsModalProps) {
   return (
-    <AnimatePresence>
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Raccourcis clavier"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
-          className="w-full max-w-xl border shadow-tactile-dark overflow-hidden rounded-xs"
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Raccourcis Clavier & Accessibilité"
+      accentColor="var(--accent)"
+      maxWidth="max-w-xl"
+    >
+      <div className="p-5 space-y-5 font-sans text-xs sm:text-sm">
+        {/* WCAG 2.1.4 Toggle option */}
+        <div
+          className="p-3.5 border rounded-xs shadow-tactile-xs flex items-center justify-between gap-4"
           style={{
-            background: 'var(--surface)',
+            background: 'var(--surface-2)',
             borderColor: 'var(--border-2)',
-            borderTop: '4px solid var(--accent)',
           }}
         >
-          {/* Header */}
-          <div
-            className="flex items-center justify-between px-6 py-4 border-b"
-            style={{ borderColor: 'var(--border-2)', background: 'var(--surface-2)' }}
-          >
-            <div className="flex items-center gap-2.5">
-              <Command className="w-5 h-5" style={{ color: 'var(--accent)' }} strokeWidth={2.5} />
-              <h2 className="text-base sm:text-lg font-black" style={{ color: 'var(--text)' }}>
-                Raccourcis Clavier
-              </h2>
+          <div className="space-y-1 min-w-0">
+            <div className="flex items-center gap-1.5 font-sans font-700 text-xs sm:text-sm" style={{ color: 'var(--text)' }}>
+              <ShieldCheck size={16} className="text-[var(--accent)] shrink-0" />
+              <span>Raccourcis à touche unique (WCAG 2.1.4)</span>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-xs transition-colors cursor-pointer text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--surface-3)]"
-              aria-label="Fermer"
-            >
-              <X className="w-5 h-5" strokeWidth={2} />
-            </button>
+            <p className="font-sans text-[11px] text-[var(--muted)] leading-relaxed">
+              Désactivez les touches uniques (J, S, L, T, R, F, G, /) si vous utilisez un lecteur d&apos;écran ou une commande vocale.
+            </p>
           </div>
 
-          {/* Table des raccourcis */}
-          <div className="divide-y divide-[var(--border)] max-h-[70vh] overflow-y-auto">
-            {SHORTCUTS.map(sc => (
-              <div
-                key={sc.key}
-                className="flex items-center justify-between px-6 py-3.5 hover:bg-[var(--surface-2)] transition-colors"
-              >
-                <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
+          {onToggleSingleKey && (
+            <Switch
+              checked={singleKeyEnabled}
+              onChange={onToggleSingleKey}
+              aria-label="Activer ou désactiver les touches simples"
+            />
+          )}
+        </div>
+
+        {/* Shortcuts table */}
+        <div className="border rounded-xs divide-y divide-[var(--border)] overflow-hidden" style={{ borderColor: 'var(--border-2)', background: 'var(--surface)' }}>
+          {SHORTCUTS.map((sc) => (
+            <div
+              key={sc.key}
+              className={`flex items-center justify-between px-4 py-2.5 transition-colors ${
+                !singleKeyEnabled && sc.singleKey ? 'opacity-40 line-through' : 'hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] uppercase text-[var(--muted)] w-20 shrink-0">
+                  {sc.section}
+                </span>
+                <span className="font-sans font-600 text-xs sm:text-sm" style={{ color: 'var(--text)' }}>
                   {sc.action}
                 </span>
-                <kbd
-                  className="px-2.5 py-1 text-xs sm:text-sm font-mono font-bold rounded-xs border shadow-tactile-xs"
-                  style={{
-                    background: 'var(--surface)',
-                    borderColor: 'var(--border-2)',
-                    color: 'var(--text)',
-                  }}
-                >
-                  {sc.key}
-                </kbd>
               </div>
-            ))}
-          </div>
+              <Kbd>{sc.key}</Kbd>
+            </div>
+          ))}
+        </div>
 
-          {/* Footer */}
-          <div
-            className="px-6 py-3 border-t text-xs font-mono flex items-center justify-between"
-            style={{ borderColor: 'var(--border)', background: 'var(--surface-2)', color: 'var(--muted)' }}
-          >
-            <span>Navigation rapide sans souris</span>
-            <span>Appuyez sur Esc pour quitter</span>
-          </div>
-        </motion.div>
+        <p className="font-mono text-[11px] text-[var(--muted)] text-right">
+          Appuyez sur <Kbd>Esc</Kbd> pour fermer cette fenêtre
+        </p>
       </div>
-    </AnimatePresence>
+    </Dialog>
   );
 }
