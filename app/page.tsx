@@ -669,6 +669,8 @@ export default function SchedulePage() {
                       searchQuery={searchQuery}
                       onFilterTeacher={handleFilterTeacher}
                       onFilterRoom={handleFilterRoom}
+                      pendingByCourse={pendingByCourse}
+                      onAddHomework={handleOpenHomeworkWithCourse}
                     />
                   </motion.div>
                 )}

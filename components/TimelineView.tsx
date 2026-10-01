@@ -156,8 +156,9 @@ export function TimelineView({
             const durationLabel = hours > 0
               ? `${hours}h${mins > 0 ? mins.toString().padStart(2, '0') : ''}`
               : `${mins} min`;
-            const isLunch = currentEnd.getHours() >= 11 && currentEnd.getHours() <= 14;
-
+            const isLunch =
+              (currentEnd.getHours() === 11 && currentEnd.getMinutes() >= 30) ||
+              (currentEnd.getHours() >= 12 && currentEnd.getHours() <= 14);
             const isBreakOngoing = isToday && nowMs >= currentEndMs && nowMs < nextStart.getTime();
             const remainingBreakMinutes = isBreakOngoing
               ? Math.max(1, Math.round((nextStart.getTime() - nowMs) / 60000))
@@ -182,19 +183,14 @@ export function TimelineView({
                 <div className="flex-1 min-w-0">
                   {isBreakOngoing ? (
                     <div
-                      className="flex flex-wrap items-center justify-between gap-2.5 px-4 sm:px-5 py-3 border rounded-xs text-xs sm:text-sm font-mono shadow-tactile-xs"
-                      style={{
-                        background: 'var(--td-bg)',
-                        borderColor: 'var(--td-bar)',
-                        color: 'var(--td-text)',
-                      }}
+                      className="flex flex-wrap items-center justify-between gap-2.5 px-4 sm:px-5 py-3 border rounded-xs text-xs sm:text-sm font-mono shadow-tactile-xs bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-900 dark:text-amber-200"
                     >
                       <div className="flex items-center gap-2.5">
                         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 live-indicator-pulse shrink-0" />
                         {isLunch ? (
-                          <Utensils className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                          <Utensils className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={2.2} />
                         ) : (
-                          <Coffee className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                          <Coffee className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={2.2} />
                         )}
                         <span className="font-extrabold tracking-tight">
                           {isLunch ? 'PAUSE DÉJEUNER EN COURS' : 'PAUSE EN COURS'} · RESTE {remainingBreakMinutes} MIN
@@ -319,6 +315,22 @@ export function TimelineView({
           </React.Fragment>
         );
       })}
+
+      {/* Ligne repère MAINTENANT si l'heure actuelle est après le dernier cours du jour */}
+      {isToday && events.length > 0 && nowMs > new Date(events[events.length - 1].dtend).getTime() && (
+        <div className="flex items-center gap-3 sm:gap-5 my-3 relative z-20">
+          <div className="w-16 sm:w-20 shrink-0 text-right">
+            <span className="inline-block px-2.5 py-1 rounded-xs font-mono text-xs sm:text-sm font-black text-white bg-red-600 shadow-sm">
+              {format(currentTime, 'HH:mm')}
+            </span>
+          </div>
+          <div className="relative flex items-center justify-center shrink-0 w-5">
+            <span className="w-3.5 h-3.5 rounded-full bg-red-600 animate-ping absolute" />
+            <span className="w-3 h-3 rounded-full bg-red-600 relative z-10" />
+          </div>
+          <div className="flex-1 h-[2px] bg-red-600 shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+        </div>
+      )}
     </motion.div>
   );
 }

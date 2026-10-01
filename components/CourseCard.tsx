@@ -68,7 +68,7 @@ export function CourseCard({
     if (roomText) {
       navigator.clipboard.writeText(roomText);
       setCopiedRoom(true);
-      setTimeout(() => setCopiedRoom(false), 1500);
+      setTimeout(() => setCopiedRoom(false), 2000);
     }
   };
 
@@ -80,9 +80,10 @@ export function CourseCard({
   const cardBase = [
     'relative w-full cursor-pointer select-none group border',
     'transition-all duration-120 btn-tactile shadow-tactile-xs',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2',
     isPast ? 'opacity-65 saturate-[0.80] hover:opacity-100' : '',
     theme.catClass,
-    isTP ? (theme.pattern ?? '') : '',
+    isTP ? (theme.pattern ?? 'pattern-tp') : '',
   ].filter(Boolean).join(' ');
 
   return (
