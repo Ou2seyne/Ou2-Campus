@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+  </defs>
+  <!-- Background with subtle border -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)" />
+  <rect x="16" y="16" width="480" height="480" rx="80" fill="none" stroke="#334155" stroke-width="4" stroke-dasharray="8 8" />
+  
+  <!-- Campus Academic Header Banner -->
+  <rect x="64" y="64" width="384" height="40" rx="8" fill="#1e293b" stroke="#475569" stroke-width="2" />
+  <circle cx="88" cy="84" r="6" fill="#ef4444" />
+  <circle cx="108" cy="84" r="6" fill="#f59e0b" />
+  <circle cx="128" cy="84" r="6" fill="#10b981" />
+  <text x="256" y="89" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" letter-spacing="3" text-anchor="middle">AURA CAMPUS · ARTOIS</text>
+
+  <!-- Gazette Stylized A Monogram -->
+  <text x="256" y="320" fill="#f8fafc" font-family="'Times New Roman', Georgia, serif" font-size="210" font-weight="900" text-anchor="middle">A</text>
+  
+  <!-- Stylized Schedule Calendar Bars Underneath -->
+  <rect x="96" y="360" width="90" height="24" rx="4" fill="#3b82f6" />
+  <rect x="200" y="360" width="130" height="24" rx="4" fill="#10b981" />
+  <rect x="344" y="360" width="72" height="24" rx="4" fill="#f59e0b" />
+
+  <rect x="96" y="396" width="140" height="16" rx="4" fill="#64748b" opacity="0.6" />
+  <rect x="250" y="396" width="90" height="16" rx="4" fill="#64748b" opacity="0.6" />
+  <rect x="354" y="396" width="62" height="16" rx="4" fill="#64748b" opacity="0.6" />
+
+  <!-- Live Pulse Dot -->
+  <circle cx="396" cy="180" r="14" fill="#10b981" />
+  <circle cx="396" cy="180" r="24" fill="none" stroke="#10b981" stroke-width="3" opacity="0.6" />
+</svg>

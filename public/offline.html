@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hors-ligne — Aura Campus</title>
+  <style>
+    :root {
+      --bg: #F5F3EE;
+      --surface: #FFFFFF;
+      --text: #0D0D0C;
+      --text-2: #2E2D2B;
+      --muted: #6B6A67;
+      --border: #D8D5CE;
+      --border-2: #BAB7AF;
+      --accent: #0052CC;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0F0F0E;
+        --surface: #1A1917;
+        --text: #F0EFEB;
+        --text-2: #C6C4BF;
+        --muted: #9B9A97;
+        --border: #302F2C;
+        --border-2: #413F3B;
+        --accent: #4B8BF5;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      background-image: radial-gradient(circle, var(--border) 0.75px, transparent 0.75px);
+      background-size: 24px 24px;
+    }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 24px;
+      text-align: center;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      box-shadow: 3px 3px 0 var(--border-2);
+      border-radius: 4px;
+      padding: 32px 40px;
+      max-width: 480px;
+      width: 100%;
+    }
+    .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid var(--accent);
+      padding: 8px 20px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 2px;
+      box-shadow: 2px 2px 0 rgba(0,82,204,0.5);
+      text-decoration: none;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .btn:active {
+      transform: translate(1.5px, 1.5px);
+      box-shadow: none;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 2px 8px;
+      border: 1px solid var(--border-2);
+      border-radius: 2px;
+      color: var(--muted);
+      background: var(--bg);
+      margin-bottom: 16px;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <span class="icon">📡</span>
+      <div class="badge"><span class="dot"></span> Hors-ligne</div>
+      <h1>Mode hors-ligne</h1>
+      <p>
+        Vous n'êtes pas connecté à Internet. Votre dernier emploi du temps mis en cache
+        est disponible dans l'application. Reconnectez-vous pour actualiser les données.
+      </p>
+      <a href="/" class="btn">
+        ↩ Retour à l'application
+      </a>
+    </div>
+    <p style="font-size: 12px; color: var(--muted);">
+      Aura Campus · Données consultables hors-ligne
+    </p>
+  </div>
+  <script>
+    // Auto-reload when connectivity is restored
+    window.addEventListener('online', () => { window.location.reload(); });
+  </script>
+</body>
+</html>

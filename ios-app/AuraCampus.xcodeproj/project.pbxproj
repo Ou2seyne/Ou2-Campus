@@ -1,0 +1,445 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06BF12957FF1CDBF248EBC99 /* ScheduleEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86D69EABAB2C0B3343BCBCA /* ScheduleEvent.swift */; };
+		09463E53D285F165DADDC6BB /* CourseDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2967E0C4DD56EACF3A27E4C3 /* CourseDetailSheet.swift */; };
+		2166D638E908C15F80E6562A /* LensCampusGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33F0117F60F41DACCCFE85EF /* LensCampusGuide.swift */; };
+		30054A3BC074416F06ABE84A /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAC321C06D37D9C9A99BEEF /* SearchBarView.swift */; };
+		466AD4538FD68D72ADE67030 /* DailyBriefingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535A01401A0A0909B6769976 /* DailyBriefingCard.swift */; };
+		47A00266293A72A17ADE1692 /* HomeworkSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CFAA34A0385CBEB25A4DEC /* HomeworkSheet.swift */; };
+		4DDB29B775997A285C169EEA /* UrlInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB095D66ECC52C28A4CFE6C6 /* UrlInputSheet.swift */; };
+		536E264EAD5C564539034124 /* HomeworkItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D88DA2104306087C8C7ECF /* HomeworkItem.swift */; };
+		615962BC02485CDB72C0512C /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3B3F8E239E36FEA4CB36CA /* HeaderView.swift */; };
+		75F432F22829F7373DE0AB68 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4397755194D396B99BF52EAA /* Assets.xcassets */; };
+		7FA872E3629C1B734825824B /* AnalyticsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C37CBCB22D5E2EAFF9F37A3 /* AnalyticsSheet.swift */; };
+		86C58E15A78D501987D43CA2 /* AuraCampusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0450C1DC25B3A6DC2BE6BC7A /* AuraCampusApp.swift */; };
+		97CC2EFB7020247A6BDCDFCB /* CourseCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDA7C577F03048DE44ECE773 /* CourseCategory.swift */; };
+		9B99E5300C8B9754EF050DF2 /* GazetteTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC389100A29F9E6AFA6689 /* GazetteTheme.swift */; };
+		A26C9510428E179C814E798C /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E2D6E2A0F0A1EB603091D8 /* GlassCard.swift */; };
+		A585FB5FB3A505A22DB116F2 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CA51B5215DFDA39A614EB4 /* TimelineView.swift */; };
+		B1F407A700B36A76C8AC66E2 /* WeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF1B8E816FB8F6D873D2696 /* WeekView.swift */; };
+		B2041806A635A4C200980A32 /* ScheduleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 556D54483C332D62AC92DA6D /* ScheduleStore.swift */; };
+		C2EB68A96B7B25E750D1D7E5 /* ExamRadarSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E000E997F103CCB7996E7B9 /* ExamRadarSheet.swift */; };
+		C4B36075D71460477138A674 /* iCalendarParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464E441645BCB6B4A059B224 /* iCalendarParser.swift */; };
+		DF6D75DC77F7605AE093042F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5D6648E72A56BAE27E6599 /* ContentView.swift */; };
+		E11B65FD52CA098DF6280FDE /* CalendarExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7205C122601A8193DDDBE963 /* CalendarExporter.swift */; };
+		EAFBE9F2BBC41DBDC9E0908A /* DateSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82C39EB0536ED2B245687CC9 /* DateSelectorView.swift */; };
+		ED0E3E0ABE90BE780D2335C0 /* SavedSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C22DD9A65699F7FCA8D2AA /* SavedSchedule.swift */; };
+		F57357EE916C08017644B53F /* CourseCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF432AD221E77659C7A246E /* CourseCardView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0450C1DC25B3A6DC2BE6BC7A /* AuraCampusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuraCampusApp.swift; sourceTree = "<group>"; };
+		0C37CBCB22D5E2EAFF9F37A3 /* AnalyticsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsSheet.swift; sourceTree = "<group>"; };
+		0F117DAEF3137AD0E102FFC4 /* AuraCampus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AuraCampus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		27E2D6E2A0F0A1EB603091D8 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		2967E0C4DD56EACF3A27E4C3 /* CourseDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailSheet.swift; sourceTree = "<group>"; };
+		2A5D6648E72A56BAE27E6599 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		33F0117F60F41DACCCFE85EF /* LensCampusGuide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LensCampusGuide.swift; sourceTree = "<group>"; };
+		4397755194D396B99BF52EAA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		464E441645BCB6B4A059B224 /* iCalendarParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCalendarParser.swift; sourceTree = "<group>"; };
+		4FAC321C06D37D9C9A99BEEF /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
+		535A01401A0A0909B6769976 /* DailyBriefingCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefingCard.swift; sourceTree = "<group>"; };
+		556D54483C332D62AC92DA6D /* ScheduleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleStore.swift; sourceTree = "<group>"; };
+		5D3B3F8E239E36FEA4CB36CA /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		5EF432AD221E77659C7A246E /* CourseCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseCardView.swift; sourceTree = "<group>"; };
+		7205C122601A8193DDDBE963 /* CalendarExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarExporter.swift; sourceTree = "<group>"; };
+		82C39EB0536ED2B245687CC9 /* DateSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateSelectorView.swift; sourceTree = "<group>"; };
+		88CA51B5215DFDA39A614EB4 /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		9E000E997F103CCB7996E7B9 /* ExamRadarSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExamRadarSheet.swift; sourceTree = "<group>"; };
+		A9C22DD9A65699F7FCA8D2AA /* SavedSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedSchedule.swift; sourceTree = "<group>"; };
+		B1D88DA2104306087C8C7ECF /* HomeworkItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeworkItem.swift; sourceTree = "<group>"; };
+		B5CFAA34A0385CBEB25A4DEC /* HomeworkSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeworkSheet.swift; sourceTree = "<group>"; };
+		B86D69EABAB2C0B3343BCBCA /* ScheduleEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEvent.swift; sourceTree = "<group>"; };
+		BAF1B8E816FB8F6D873D2696 /* WeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekView.swift; sourceTree = "<group>"; };
+		BB095D66ECC52C28A4CFE6C6 /* UrlInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlInputSheet.swift; sourceTree = "<group>"; };
+		CCDC389100A29F9E6AFA6689 /* GazetteTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GazetteTheme.swift; sourceTree = "<group>"; };
+		FDA7C577F03048DE44ECE773 /* CourseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseCategory.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		058841E86BD4A56E01AC63CA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0F117DAEF3137AD0E102FFC4 /* AuraCampus.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		44B30FE02200C4891F110981 = {
+			isa = PBXGroup;
+			children = (
+				CBA8EA09C108EBED46FF4598 /* AuraCampus */,
+				058841E86BD4A56E01AC63CA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9CE5AEA329B528266580B5E3 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				82C39EB0536ED2B245687CC9 /* DateSelectorView.swift */,
+				27E2D6E2A0F0A1EB603091D8 /* GlassCard.swift */,
+				4FAC321C06D37D9C9A99BEEF /* SearchBarView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		B8093431DF00CE9E99EA9119 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				7205C122601A8193DDDBE963 /* CalendarExporter.swift */,
+				CCDC389100A29F9E6AFA6689 /* GazetteTheme.swift */,
+				464E441645BCB6B4A059B224 /* iCalendarParser.swift */,
+				33F0117F60F41DACCCFE85EF /* LensCampusGuide.swift */,
+				556D54483C332D62AC92DA6D /* ScheduleStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		BB37F848CD7352F1E69C8D91 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0C37CBCB22D5E2EAFF9F37A3 /* AnalyticsSheet.swift */,
+				2A5D6648E72A56BAE27E6599 /* ContentView.swift */,
+				5EF432AD221E77659C7A246E /* CourseCardView.swift */,
+				2967E0C4DD56EACF3A27E4C3 /* CourseDetailSheet.swift */,
+				535A01401A0A0909B6769976 /* DailyBriefingCard.swift */,
+				9E000E997F103CCB7996E7B9 /* ExamRadarSheet.swift */,
+				5D3B3F8E239E36FEA4CB36CA /* HeaderView.swift */,
+				B5CFAA34A0385CBEB25A4DEC /* HomeworkSheet.swift */,
+				88CA51B5215DFDA39A614EB4 /* TimelineView.swift */,
+				BB095D66ECC52C28A4CFE6C6 /* UrlInputSheet.swift */,
+				BAF1B8E816FB8F6D873D2696 /* WeekView.swift */,
+				9CE5AEA329B528266580B5E3 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CBA8EA09C108EBED46FF4598 /* AuraCampus */ = {
+			isa = PBXGroup;
+			children = (
+				4397755194D396B99BF52EAA /* Assets.xcassets */,
+				0450C1DC25B3A6DC2BE6BC7A /* AuraCampusApp.swift */,
+				D26CB9EF6FF82DC308355438 /* Models */,
+				B8093431DF00CE9E99EA9119 /* Services */,
+				BB37F848CD7352F1E69C8D91 /* Views */,
+			);
+			path = AuraCampus;
+			sourceTree = "<group>";
+		};
+		D26CB9EF6FF82DC308355438 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FDA7C577F03048DE44ECE773 /* CourseCategory.swift */,
+				B1D88DA2104306087C8C7ECF /* HomeworkItem.swift */,
+				A9C22DD9A65699F7FCA8D2AA /* SavedSchedule.swift */,
+				B86D69EABAB2C0B3343BCBCA /* ScheduleEvent.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D4C8A1BC45043B2C9DD3CCC7 /* AuraCampus */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F93863656A696EDD009893B4 /* Build configuration list for PBXNativeTarget "AuraCampus" */;
+			buildPhases = (
+				26DDCE73F161F6C9D17E80F8 /* Sources */,
+				56994E0C7CECB9FC243D0AFB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AuraCampus;
+			packageProductDependencies = (
+			);
+			productName = AuraCampus;
+			productReference = 0F117DAEF3137AD0E102FFC4 /* AuraCampus.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D31832CB7484833ED5C1EB6F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					D4C8A1BC45043B2C9DD3CCC7 = {
+						DevelopmentTeam = SL6DMGHAW9;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 524989EBF772A6AE9AFFCB41 /* Build configuration list for PBXProject "AuraCampus" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 44B30FE02200C4891F110981;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 058841E86BD4A56E01AC63CA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D4C8A1BC45043B2C9DD3CCC7 /* AuraCampus */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		56994E0C7CECB9FC243D0AFB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75F432F22829F7373DE0AB68 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		26DDCE73F161F6C9D17E80F8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FA872E3629C1B734825824B /* AnalyticsSheet.swift in Sources */,
+				86C58E15A78D501987D43CA2 /* AuraCampusApp.swift in Sources */,
+				E11B65FD52CA098DF6280FDE /* CalendarExporter.swift in Sources */,
+				DF6D75DC77F7605AE093042F /* ContentView.swift in Sources */,
+				F57357EE916C08017644B53F /* CourseCardView.swift in Sources */,
+				97CC2EFB7020247A6BDCDFCB /* CourseCategory.swift in Sources */,
+				09463E53D285F165DADDC6BB /* CourseDetailSheet.swift in Sources */,
+				466AD4538FD68D72ADE67030 /* DailyBriefingCard.swift in Sources */,
+				EAFBE9F2BBC41DBDC9E0908A /* DateSelectorView.swift in Sources */,
+				C2EB68A96B7B25E750D1D7E5 /* ExamRadarSheet.swift in Sources */,
+				9B99E5300C8B9754EF050DF2 /* GazetteTheme.swift in Sources */,
+				A26C9510428E179C814E798C /* GlassCard.swift in Sources */,
+				615962BC02485CDB72C0512C /* HeaderView.swift in Sources */,
+				536E264EAD5C564539034124 /* HomeworkItem.swift in Sources */,
+				47A00266293A72A17ADE1692 /* HomeworkSheet.swift in Sources */,
+				2166D638E908C15F80E6562A /* LensCampusGuide.swift in Sources */,
+				ED0E3E0ABE90BE780D2335C0 /* SavedSchedule.swift in Sources */,
+				06BF12957FF1CDBF248EBC99 /* ScheduleEvent.swift in Sources */,
+				B2041806A635A4C200980A32 /* ScheduleStore.swift in Sources */,
+				30054A3BC074416F06ABE84A /* SearchBarView.swift in Sources */,
+				A585FB5FB3A505A22DB116F2 /* TimelineView.swift in Sources */,
+				4DDB29B775997A285C169EEA /* UrlInputSheet.swift in Sources */,
+				B1F407A700B36A76C8AC66E2 /* WeekView.swift in Sources */,
+				C4B36075D71460477138A674 /* iCalendarParser.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2802F0D9AD519B23B1BDF9BD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = SL6DMGHAW9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Aura Campus";
+				INFOPLIST_KEY_NSAppTransportSecurity = "[\"NSAllowsArbitraryLoads\": true]";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		49498BC22DEA01B2A1C75421 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.univartois.auracampus;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4E4186697C8BA051DEBA1EFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = SL6DMGHAW9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Aura Campus";
+				INFOPLIST_KEY_NSAppTransportSecurity = "[\"NSAllowsArbitraryLoads\": true]";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9205DB32E5D2D1993008F392 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.univartois.auracampus;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		524989EBF772A6AE9AFFCB41 /* Build configuration list for PBXProject "AuraCampus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E4186697C8BA051DEBA1EFD /* Debug */,
+				2802F0D9AD519B23B1BDF9BD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F93863656A696EDD009893B4 /* Build configuration list for PBXNativeTarget "AuraCampus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9205DB32E5D2D1993008F392 /* Debug */,
+				49498BC22DEA01B2A1C75421 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D31832CB7484833ED5C1EB6F /* Project object */;
+}
