@@ -112,6 +112,11 @@ export function SearchBar({
 
         {/* Boutons d'actions droite */}
         <div className="flex items-center gap-2.5 px-3 sm:px-5">
+          {resultsCount !== undefined && searchQuery && (
+            <span className="font-mono text-xs font-bold text-[var(--muted)] px-2 py-0.5 rounded-xs bg-[var(--surface-2)] border border-[var(--border)] hidden sm:inline">
+              {resultsCount} {resultsCount > 1 ? 'résultats' : 'résultat'}
+            </span>
+          )}
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}

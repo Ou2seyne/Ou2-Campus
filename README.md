@@ -1,207 +1,138 @@
-# Aura Campus — V2 Web App
+# Aura Campus — V3 Web App
 
-> **Cockpit académique · Gazette Structurée · Anti-Lisse Industriel**  
-> Emploi du temps ADE Campus, offline-first PWA — Université d'Artois, L1 Maths-Info TD2
-
----
-
-## Stack
-
-| Layer | Technologie |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| UI | React 19, TypeScript 5 (strict) |
-| Styles | Tailwind CSS v4 + design tokens CSS |
-| Animation | Framer Motion (120–180ms, easeOut) |
-| Dates | date-fns v4 (locale fr) |
-| Icons | Lucide React |
-| Fonts | Bricolage Grotesque + Geist Mono (next/font) |
-| Storage | localStorage (schedules/settings) + IndexedDB via `idb` (homework/cache) |
-| iCal | node-ical (server-side) |
-| PWA | Hand-written service worker (no Workbox) |
+> **Cockpit académique d'élite · Gazette Structurée · Anti-Lisse Industriel**  
+> Emploi du temps ADE Campus, PWA Local-First — Université d'Artois, L1 Maths-Info TD2 / TP 2-2
 
 ---
 
-## Démarrage rapide
+## 1. Stack Technique V3
+
+| Couche | Technologie |
+| :--- | :--- |
+| **Framework** | Next.js 16 (App Router), Turbopack |
+| **UI & Logique** | React 19, TypeScript strict (0 `any`) |
+| **Styles** | Tailwind CSS v4 + Design Tokens CSS (`:root`, `[data-theme=dark]`) |
+| **Animations** | Framer Motion (120–180ms, cubic-bezier(0.16, 1, 0.3, 1), sans bounce) |
+| **Dates** | date-fns v4 (locale fr) |
+| **Icônes** | Lucide React (épaisseur 1.75–2.2) |
+| **Typographies** | Bricolage Grotesque (Display/Titres) + Geist Mono (Horaires, tabular-nums, Salles) |
+| **Stockage** | IndexedDB unique source de vérité (`aura-campus-db`, version 1) via repository typé |
+| **Partage P2P** | Compression JSON URL sécurisée via `lz-string` |
+| **PWA** | Service Worker sur-mesure (SWR, Cache-First, Offline Fallback, lazy skipWaiting) |
+
+---
+
+## 2. Démarrage Rapide
 
 ```bash
+# Installation des dépendances
 npm install
-npm run dev        # http://localhost:3000
-npm run build      # production build
-npm run start      # production server
+
+# Lancement du serveur de développement (http://localhost:3000)
+npm run dev
+
+# Vérification du typage strict
+npx tsc --noEmit
+
+# Exécution des suites de tests unitaires et d'accessibilité (Vitest)
+npm run test
+
+# Validation du linter
+npm run lint
+
+# Compilation de production
+npm run build
+
+# Démarrage du serveur de production
+npm run start
 ```
 
 ---
 
-## Scripts
+## 3. Scripts Disponibles
 
-| Script | Description |
-|---|---|
-| `npm run dev` | Serveur de développement Next.js |
-| `npm run build` | Build de production |
-| `npm run start` | Serveur de production |
-| `npm run lint` | ESLint |
-
----
-
-## Fonctionnalités
-
-### Vues
-- **Jour** — fil chronologique avec ligne MAINTENANT, pauses détectées, briefing express
-- **Semaine** — grille 6 colonnes (desktop) / snap-scroll 76% (mobile)
-- **Liste** — scroll complet du semestre avec en-têtes de jours
-
-### Navigation clavier
-| Touche | Action |
-|---|---|
-| `J` | Vue Jour |
-| `S` | Vue Semaine |
-| `L` | Vue Liste |
-| `←` / `→` | Jour/semaine précédent(e) / suivant(e) |
-| `T` | Aujourd'hui |
-| `R` | Rafraîchir |
-| `F` | Focus Mode (masque le header) |
-| `G` | Aller à une date (ouvre la palette) |
-| `⌘K` / `Ctrl+K` | Palette de commandes |
-| `/` | Focus barre de recherche |
-| `?` | Aide raccourcis |
-| `Esc` | Fermer modale |
-
-### Palette de commandes (`⌘K`)
-- Recherche de cours, salles, professeurs
-- Commandes rapides : vue, theme, examens, devoirs, statistiques, refresh
-- Navigation `>` pour les commandes (ex. `> sombre`, `> examen`)
-- Clavier : ↑↓ navigation, ↵ sélection, Esc fermeture
-
-### Modales
-- **Fiche de cours** — export Google Calendar, .ics, partage natif, devoirs contextuels
-- **Radar examens** — urgences J-day, export .ics
-- **Devoirs** — liaison matière, date d'échéance, filtres, swipe-to-complete (mobile)
-- **Analytiques** — heures par type, top 5 matières, jour le plus chargé
-- **Sources ADE** — URL validation, presets, aide step-by-step
-
-### PWA
-- **Installable** sur Android (beforeinstallprompt) et iOS (guide Add to Home Screen)
-- **Offline-first** — dernier planning mis en cache dans IndexedDB
-- **Service Worker** — Network-First pour API, Cache-First pour chunks statiques
-- **Update flow** — toast "Nouvelle version disponible → Mettre à jour" (skipWaiting user-triggered)
-- **Navigation fallback** — `/offline.html` si navigation hors-ligne sans cache
-- **Background refresh** — à la reconnexion réseau et au retour sur l'onglet
+| Commande | Rôle |
+| :--- | :--- |
+| `npm run dev` | Lance le serveur de développement local avec Fast Refresh Turbopack |
+| `npm run build` | Compile l'application pour la production et génère les chunks optimisés |
+| `npm run start` | Démarre le serveur Node.js de production |
+| `npm run lint` | Exécute ESLint sur l'ensemble du projet (0 avertissements autorisés) |
+| `npm run test` | Lance les 21 tests unitaires et de conformité WCAG via Vitest |
 
 ---
 
-## Architecture des dossiers
+## 4. Fonctionnalités Phares V3
 
-```
-app/
-  layout.tsx          ← Fonts, inline theme script (no-flash), skip-to-content
-  globals.css         ← Tokens V2, spacing scale, print tokens, animations
-  page.tsx            ← Shell principal (orchestrateur)
-  manifest.ts         ← PWA manifest
-  api/schedule/       ← Proxy ADE (SSRF guard, Cache-Control, Zod)
+### 📰 Esthétique Gazette Structurée V3
+- **Double Filet Signature :** Séparateur 1px + 3px sous le masthead et entre sections majeures (`.filet-double`).
+- **Trame Papier & Grain :** Texture de points réguliers en mode clair (`radial-gradient`), grain subtil en sombre.
+- **Numérotation Éditoriale :** Chapeau type `ÉDITION DU MARDI 30 SEPTEMBRE · SEM. 40` en Geist Mono caps.
+- **Tampons Industriels :** `.stamp-badge` et `.stamp-exam` à rotation fixe -1° et double bordure.
+- **Chargement Squelette Réel :** Remplace les spinners par un gabarit dimensionné à l'identique de la page (CLS = 0).
 
-features/
-  command-palette/    ← CommandPalette + useCommandPalette
-  focus-mode/         ← (intégré dans page.tsx)
+### 📅 Vues Calendaires Adaptatives
+- **Vue Jour :** `DailyBriefingCard` format Une de journal avec grand compteur Display en Geist Mono, timeline avec ligne rouge « MAINTENANT », scanline sur le cours actif, et détection des pauses méridiennes (bandeau ambre).
+- **Vue Semaine Responsive (3 tiers) :**
+  - *Desktop (≥1024px) :* Grille 6 colonnes synchronisée avec clustering `computeEventLayout`.
+  - *Tablette (640–1023px) :* Grille 3 colonnes avec commutateur segmenté (Lun–Mer / Jeu–Sam).
+  - *Mobile (<640px) :* Affichage d'**un seul jour en pleine largeur** surmonté d'un mini-strip interactif de 6 jours et navigation par swipe horizontal.
+- **Vue Liste :** Rendu virtualisé pour l'intégralité du semestre avec en-têtes de jour collants et propriété `content-visibility: auto`.
 
-components/
-  ui/
-    Button.tsx        ← btn-tactile, variants, 44px touch targets
-    Dialog.tsx        ← focus trap, aria-dialog, swipe-down mobile
-    Badge.tsx         ← stamp-badge, Kbd, Skeleton, Spinner, EmptyState
-    Segmented.tsx     ← glider Framer Motion + Toast/HUD
-  Header.tsx          ← horloge live, Cmd+K, badges, 44px cibles
-  [autres]            ← composants existants
-
-hooks/
-  useFocusTrap.ts     ← Tab/Shift-Tab trap + Escape
-  useSwipe.ts         ← gestes tactiles (swipe down/up/left/right)
-  useTheme.ts         ← light/dark/auto + no-flash + prefers-color-scheme
-  useSchedule.ts      ← état du planning (localStorage + IndexedDB cache)
-  useHomework.ts      ← état des devoirs
-  usePwa.ts           ← installation, SW, online/offline
-
-lib/
-  idb.ts              ← IndexedDB repo (homework + schedule cache) + migration localStorage
-  ade-fetcher.ts
-  ade-parser.ts
-  calendarExport.ts
-  campus.ts
-
-public/
-  sw.js               ← Service Worker V3 (lazy skipWaiting, nav fallback)
-  offline.html        ← Page hors-ligne (auto-reload à la reconnexion)
-```
+### ⚡ Productivité & Outils Métier
+- **Palette de Commandes `⌘K / Ctrl+K` :** Recherche floue (cours, salles, professeurs) et mode actions (préfixe `>`).
+- **Planificateur de Révision (`RevisionPlannerModal`) :** Détection automatique des créneaux libres de 9h à 19h avant un examen et ajout de devoirs en 1 clic.
+- **Comparateur de Plannings (`ScheduleComparatorModal`) :** Comparaison de deux cohortes (ex. 2-2 vs 2-1) pour détecter les pauses et temps libres communs.
+- **Partage P2P de Devoirs :** Exportation et importation d'ensembles de tâches compressées via le paramètre d'URL `?hwShare=`.
+- **Décodeur Campus Faculté des Sciences de Lens :** Localisation précise des amphis et salles D, C, E (`lib/campus.data.ts`).
+- **Mode Impression Gazette A4 (`@media print`) :** Exportation ou impression papier noir sur blanc de haute qualité.
 
 ---
 
-## PWA — Checklist offline
+## 5. Navigation Clavier & Raccourcis (WCAG 2.1.4)
 
-1. Charger l'application une première fois (online)
-2. Attendre la fin du chargement du planning
-3. Couper le réseau (DevTools > Network > Offline)
-4. Recharger la page — l'app doit démarrer instantanément
-5. Naviguer entre Jour / Semaine / Liste — tout doit fonctionner
-6. Vérifier le bandeau ambre "Hors-ligne"
-7. Ouvrir `/offline.html` directement — doit afficher la page de fallback
-8. Reconnecter le réseau — bandeau vert de reconnexion, puis refresh automatique
+| Raccourci | Action |
+| :--- | :--- |
+| `⌘K` / `Ctrl+K` | Ouvrir la Palette de Commandes (fonctionne même dans les champs de saisie) |
+| `J` | Basculer en **Vue Jour** |
+| `S` | Basculer en **Vue Semaine** |
+| `L` | Basculer en **Vue Liste** |
+| `T` | Revenir à **Aujourd'hui** |
+| `R` | Forcer le rafraîchissement ADE |
+| `F` | Activer le **Mode Focus Amphi** (masque le header) |
+| `G` | Sélecteur rapide de date |
+| `/` | Donner le focus à la recherche |
+| `?` | Afficher la modale des raccourcis |
+| `Esc` | Fermer toute boîte de dialogue, tiroir ou palette |
 
-### Tester l'update flow
-1. Modifier `sw.js` (incrémenter `CACHE_STATIC` version)
-2. Recharger l'onglet
-3. Le toast "Nouvelle version disponible → Mettre à jour" doit apparaître
-4. Cliquer "Mettre à jour" → rechargement avec le nouveau SW
-
----
-
-## SSRF Protection
-
-L'API proxy (`/api/schedule`) n'accepte que :
-- URLs `demo://` (données de démonstration)
-- Domaines `.univ-*.fr`, `.u-*.fr`, `.ac-*.fr`, `.edu.fr`
-- Fichiers `.shu` ou `.ics` depuis des serveurs HTTPS
-- Blocage explicite de : `localhost`, `127.0.0.1`, `192.168.x`, `10.x`, `172.x`, `.local`
+> **Accessibilité Clavier :** Une option dans la modale des raccourcis permet de **désactiver les touches uniques** (`J`, `S`, etc.) pour les personnes utilisant des technologies d'assistance vocales (WCAG 2.1.4).
 
 ---
 
-## Accessibilité (WCAG 2.2)
+## 6. Checklist de Validation Offline & PWA
 
-- Skip-to-content link visible au focus
-- Focus trap dans toutes les modales (`useFocusTrap`)
-- `role="dialog"`, `aria-modal="true"`, `aria-labelledby` sur les modales
-- `aria-live="polite"` sur les états de chargement et navigation
-- Cibles tactiles ≥ 44×44px sur tous les boutons d'action
-- Contraste : `--text` / `--bg` = 18.2:1 (AAA) ; `--muted` relevé à `#5A5956` = ~5.2:1 (AA)
-- `prefers-reduced-motion` : toutes les animations ramenées à 0.01ms
-- Motif hachuré `.pattern-tp` pour les TP (sécurité daltonisme)
-- `color-scheme: light dark` + script inline pour éviter le flash
-
----
-
-## Design System V2 — Tokens clés
-
-```css
-/* Spacing (4px base) */
---sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; …
-
-/* Elevation (hard shadows only) */
---el-1: 1.5px 1.5px 0px 0px var(--border-2);
---el-2: 2px 2px 0px 0px var(--border-2);
---el-dark: 2.5px 2.5px 0px 0px var(--text);
-
-/* Radius (max 4px) */
---r-1: 2px;  --r-2: 4px;
-
-/* Motion */
---dur-fast: 120ms; --dur-base: 150ms; --dur-slow: 180ms;
---ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-```
+Pour tester le comportement hors-ligne et l'installation PWA :
+1. **Premier chargement :** Ouvrir l'application en ligne et laisser le flux ADE se charger.
+2. **Coupure réseau :** Dans les DevTools du navigateur, basculer le réseau sur *Offline* (ou passer en Mode Avion).
+3. **Rechargement :** Rafraîchir la page (`F5` ou `Cmd+R`).
+   - L'application démarre immédiatement (0 ms) grâce au cache IndexedDB.
+   - Le bandeau ambré « Mode hors-ligne » s'affiche en tête d'écran.
+   - Les vues Jour, Semaine et Liste restent 100 % navigables.
+4. **Fallback Navigation :** Naviguer vers une URL non mise en cache pour observer `/offline.html`.
+5. **Reconnexion :** Rétablir le réseau. Un bandeau vert confirme le retour en ligne et déclenche une synchronisation silencieuse.
+6. **Mise à jour du Service Worker :** Lorsqu'un nouveau `sw.js` est déployé, un toast signale « Nouvelle version disponible → Mettre à jour » (déclenchement `SKIP_WAITING` sur consentement).
 
 ---
 
-## Notes de développement
+## 7. Galerie UI Interne
 
-- **IndexedDB migration** : au premier lancement avec la V2, les devoirs et caches de planning sont migrés depuis `localStorage` vers IndexedDB automatiquement. Les anciennes clés sont supprimées après 24h.
-- **Service Worker** : `skipWaiting` n'est plus appelé à l'install — il est déclenché uniquement par le toast "Mettre à jour" (message `SKIP_WAITING`).
-- **`select-none`** : retiré de `<html>` — la sélection de texte est maintenant active sur le contenu. Seuls les composants UI interactifs l'appliquent manuellement.
-- **Live clock** : tourne à 1 seconde dans `page.tsx` et alimente à la fois le header et les barres de progression des cours en cours.
+Une page de laboratoire interne est mise à disposition pour inspecter l'ensemble des design tokens, boutons tactiles, modales et variations de thèmes :
+👉 **`http://localhost:3000/_ui`**
+
+---
+
+## 8. Documentation Complémentaire
+
+- [Spécifications UI/UX & Design System (DESIGN.md)](./DESIGN.md)
+- [Architecture Technique & Données (ARCHITECTURE.md)](./ARCHITECTURE.md)
+- [Plan de Développement V3 (docs/V3_PLAN.md)](./docs/V3_PLAN.md)
+- [Registre des Décisions d'Ingénierie (docs/V3_DECISIONS.md)](./docs/V3_DECISIONS.md)

@@ -66,3 +66,29 @@
   - *Décision :* Maintien d'un Service Worker sur-mesure ultra-léger avec Network-First + SWR sur `/api/schedule`, Cache-First sur les chunks statiques hachés Next.js et polices Google Fonts, et interception navigation vers `offline.html`.
 
 ---
+
+## 7. Accessibilité & Performance (Phase 7)
+- **Mode Contraste Élevé (@media (prefers-contrast: more)) :**
+  - *Décision :* Intégration d'un ensemble de tokens CSS dédiés renforçant les bordures en noir ou blanc pur, supprimant les trames de fond texturées et augmentant l'épaisseur de l'anneau de focus clavier à 3px franc.
+  - *Justification :* Garantie d'une lisibilité AAA (contrastes > 7:1 et jusqu'à 21:1) pour les étudiants malvoyants.
+- **Découpage des Paquets & Dynamic Imports :**
+  - *Décision :* Chargement différé via `next/dynamic` (`ssr: false`) des boîtes de dialogue complexes (`AnalyticsModal`, `RevisionPlannerModal`, `ScheduleComparatorModal`, `ShortcutsModal`, `UrlModalInput`).
+  - *Justification :* Maintien d'un bundle initial JavaScript minimal (< 150 KB gzip), LCP accéléré et INP < 100ms.
+- **Conformité React 19 & ESLint 9 :**
+  - *Décision :* Remplacement des synchronisations d'état internes dans `useEffect` par un état dérivé calculé et des gestionnaires d'événements explicites.
+  - *Justification :* Élimination des doubles rendus et respect des garde-fous de React 19.
+
+---
+
+## 8. Finition Pixel & Expérience Éditoriale (Phase 8)
+- **Écran de Chargement Squelette Haute Fidélité :**
+  - *Décision :* Remplacement du spinner d'attente par une structure squelette reproduisant fidèlement la mise en page de la gazette : masthead, briefing card avec compteurs d'heures, et 3 cartes de cours dimensionnées à l'identique du contenu réel.
+  - *Justification :* Zéro décalage de mise en page (CLS = 0) et perception de chargement instantanée.
+- **Gestion Dynamique du theme-color :**
+  - *Décision :* Mise à jour synchrone de toutes les balises `<meta name="theme-color">` lors de l'alternance clair/sombre (`#0F0F0E` en sombre, `#F5F3EE` en clair), complétée par les attributs `appleWebApp.capable` et `startupImage` pour iOS.
+  - *Justification :* Intégration parfaite dans la barre d'état et le navigateur système (Safari iOS, Chrome Android, PWA standalone).
+- **Parcours Personas Sans Friction :**
+  - *Décision :* Validation des flux Lucas (smartphone 375px : swipe, haptique, 1 jour + mini-strip), Camille (laptop 1024px : vue 6 colonnes, palette `⌘K`, radar DS) et Alexandre (desktop : raccourcis à 1 touche, export impression A4 gazette).
+
+
+---

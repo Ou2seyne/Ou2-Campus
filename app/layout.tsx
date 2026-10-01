@@ -39,8 +39,14 @@ export const metadata: Metadata = {
   keywords: ['emploi du temps', 'ADE Campus', 'Université Artois', 'planning', 'cours'],
   authors: [{ name: 'Aura Campus' }],
   appleWebApp: {
+    capable: true,
     title: 'Aura Campus',
     statusBarStyle: 'black-translucent',
+    startupImage: [
+      {
+        url: '/icons/icon-512.png',
+      },
+    ],
   },
   formatDetection: { telephone: false },
   icons: {

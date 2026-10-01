@@ -20,14 +20,17 @@ function applyTheme(mode: ThemeMode) {
   html.style.colorScheme = isDark ? 'dark' : 'light';
 
   // Update the meta theme-color dynamically
-  const lightMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"][media*="light"]');
-  const darkMeta  = document.querySelector<HTMLMetaElement>('meta[name="theme-color"][media*="dark"]');
-  if (isDark) {
-    darkMeta?.setAttribute('content', '#0F0F0E');
-    lightMeta?.setAttribute('content', '#F5F3EE');
+  const metaTags = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]');
+  const targetColor = isDark ? '#0F0F0E' : '#F5F3EE';
+  if (metaTags.length > 0) {
+    metaTags.forEach((tag) => {
+      tag.setAttribute('content', targetColor);
+    });
   } else {
-    lightMeta?.setAttribute('content', '#F5F3EE');
-    darkMeta?.setAttribute('content', '#0F0F0E');
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = targetColor;
+    document.head.appendChild(meta);
   }
 }
 

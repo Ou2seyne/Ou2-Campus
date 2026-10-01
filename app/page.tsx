@@ -26,6 +26,7 @@ import { usePwa } from '@/hooks/usePwa';
 import { ContextBanner } from '@/components/ContextBanner';
 import { CommandPalette, useCommandPalette } from '@/features/command-palette/CommandPalette';
 import { Toast } from '@/components/ui/Segmented';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ScheduleEvent } from '@/types/schedule';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -582,27 +583,50 @@ export default function SchedulePage() {
             {/* Main content area */}
             {isLoading ? (
               <div
-                className="w-full flex flex-col items-center justify-center gap-4 py-24 border shadow-tactile-sm"
-                style={{
-                  background: 'var(--surface)',
-                  borderColor: 'var(--border-2)',
-                  borderRadius: 'var(--r-1)',
-                }}
+                className="w-full space-y-4 my-2"
                 role="status"
                 aria-live="polite"
+                aria-label="Chargement de l'édition ADE"
               >
+                {/* Briefing skeleton */}
                 <div
-                  className="w-8 h-8 rounded-full border-3 spinner"
-                  style={{ borderColor: 'var(--border-2)', borderTopColor: 'var(--accent)' }}
-                  aria-hidden="true"
-                />
-                <div className="text-center">
-                  <p className="text-base sm:text-lg font-extrabold" style={{ color: 'var(--text)' }}>
-                    Synchronisation ADE…
-                  </p>
-                  <p className="text-xs sm:text-sm mt-1 font-mono font-medium" style={{ color: 'var(--muted)' }}>
-                    Téléchargement et filtrage du flux en cours
-                  </p>
+                  className="w-full border p-4 sm:p-6 shadow-tactile-sm animate-pulse flex flex-col gap-4"
+                  style={{
+                    background: 'var(--surface)',
+                    borderColor: 'var(--border-2)',
+                    borderRadius: 'var(--r-1)',
+                  }}
+                >
+                  <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--border)' }}>
+                    <div className="h-4 w-44 bg-[var(--surface-3)] rounded-xs" />
+                    <div className="h-4 w-28 bg-[var(--surface-3)] rounded-xs" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
+                    <div className="space-y-2">
+                      <div className="h-3 w-24 bg-[var(--surface-3)] rounded-xs" />
+                      <div className="h-10 w-32 bg-[var(--surface-3)] rounded-xs" />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <div className="h-3 w-32 bg-[var(--surface-3)] rounded-xs" />
+                      <div className="h-7 w-3/4 bg-[var(--surface-3)] rounded-xs" />
+                      <div className="h-4 w-1/2 bg-[var(--surface-3)] rounded-xs" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Course Skeletons list */}
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-3 sm:gap-4 items-start">
+                      <div className="w-14 sm:w-16 pt-2 shrink-0 space-y-1.5 text-right hidden sm:block">
+                        <div className="h-4 w-12 bg-[var(--surface-2)] rounded-xs ml-auto animate-pulse" />
+                        <div className="h-3 w-8 bg-[var(--surface-2)] rounded-xs ml-auto animate-pulse" />
+                      </div>
+                      <div className="flex-1">
+                        <Skeleton variant="course" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : error ? (

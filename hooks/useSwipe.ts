@@ -29,7 +29,7 @@ export function useSwipe({
     startPos.current = { x: touch.clientX, y: touch.clientY };
   }, []);
 
-  const onTouchMove = useCallback((_e: React.TouchEvent) => {
+  const onTouchMove = useCallback(() => {
     // passthrough — we detect on end
   }, []);
 
