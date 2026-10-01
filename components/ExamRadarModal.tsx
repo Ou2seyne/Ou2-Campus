@@ -13,6 +13,7 @@ interface ExamRadarModalProps {
   onClose: () => void;
   events: ScheduleEvent[];
   onOpenHomework?: (courseTitle: string) => void;
+  onOpenRevisionPlanner?: (exam: ScheduleEvent) => void;
   nowTimestamp?: number;
 }
 
@@ -21,6 +22,7 @@ export function ExamRadarModal({
   onClose,
   events,
   onOpenHomework,
+  onOpenRevisionPlanner,
   nowTimestamp = 0,
 }: ExamRadarModalProps) {
   const exams = useMemo(() => {
@@ -221,10 +223,17 @@ export function ExamRadarModal({
                                   <span>.ics</span>
                                 </button>
 
-                                {onOpenHomework && (
+                                {(onOpenRevisionPlanner || onOpenHomework) && (
                                   <button
                                     type="button"
-                                    onClick={() => { onClose(); onOpenHomework(exam.cleanTitle); }}
+                                    onClick={() => {
+                                      onClose();
+                                      if (onOpenRevisionPlanner) {
+                                        onOpenRevisionPlanner(exam);
+                                      } else {
+                                        onOpenHomework?.(exam.cleanTitle);
+                                      }
+                                    }}
                                     className="btn-tactile inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-xs border transition-colors cursor-pointer shadow-tactile-xs min-h-[34px]"
                                     style={{
                                       background: 'var(--accent-dim)',

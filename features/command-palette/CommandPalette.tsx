@@ -25,6 +25,9 @@ import {
   Users,
   MapPin,
   GraduationCap,
+  Sparkles,
+  ArrowRightLeft,
+  Printer,
 } from 'lucide-react';
 import type { ScheduleEvent } from '@/types/schedule';
 import { format } from 'date-fns';
@@ -56,6 +59,8 @@ export interface CommandPaletteProps {
   onOpenHomework: () => void;
   onOpenAnalytics: () => void;
   onOpenSources: () => void;
+  onOpenRevisionPlanner?: () => void;
+  onOpenComparator?: () => void;
   onRefresh: () => void;
   onGoToToday: () => void;
   onSearchChange: (q: string) => void;
@@ -105,6 +110,8 @@ export function CommandPalette({
   onOpenHomework,
   onOpenAnalytics,
   onOpenSources,
+  onOpenRevisionPlanner,
+  onOpenComparator,
   onRefresh,
   onGoToToday,
   onSearchChange,
@@ -236,6 +243,33 @@ export function CommandPalette({
         onSelect: () => { onToggleFocusMode?.(); onClose(); },
       },
       {
+        id: 'cmd-revisions',
+        type: 'action',
+        label: 'Planifier des Révisions',
+        description: 'Détecter les créneaux libres avant un DS et les bloquer',
+        icon: <Sparkles size={14} className="text-amber-500" />,
+        shortcut: '>revisions',
+        onSelect: () => { onOpenRevisionPlanner?.(); onClose(); },
+      },
+      {
+        id: 'cmd-comparator',
+        type: 'action',
+        label: 'Comparateur de Plannings',
+        description: 'Comparer avec un autre groupe et trouver les temps libres communs',
+        icon: <ArrowRightLeft size={14} className="text-[var(--accent)]" />,
+        shortcut: '>comparer',
+        onSelect: () => { onOpenComparator?.(); onClose(); },
+      },
+      {
+        id: 'cmd-print',
+        type: 'action',
+        label: 'Imprimer la Gazette (A4)',
+        description: 'Export haute définition noir et blanc @media print',
+        icon: <Printer size={14} className="text-[var(--muted)]" />,
+        shortcut: '⌘P',
+        onSelect: () => { onClose(); window.print(); },
+      },
+      {
         id: 'cmd-sources',
         type: 'action',
         label: 'Changer de source ADE / Presets',
@@ -254,7 +288,7 @@ export function CommandPalette({
         onSelect: () => { onToggleDark(); onClose(); },
       },
     ],
-    [isDark, isFocusMode, onClose, onGoToToday, onOpenAnalytics, onOpenExamRadar, onOpenHomework, onOpenSources, onRefresh, onToggleDark, onToggleFocusMode, onViewChange]
+    [isDark, isFocusMode, onClose, onGoToToday, onOpenAnalytics, onOpenComparator, onOpenExamRadar, onOpenHomework, onOpenRevisionPlanner, onOpenSources, onRefresh, onToggleDark, onToggleFocusMode, onViewChange]
   );
 
   /* ── 2. Filtered Results Engine ─────────────────────────── */

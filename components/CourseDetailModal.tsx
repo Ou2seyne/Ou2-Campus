@@ -11,7 +11,7 @@ import {
   Calendar, ExternalLink, Copy, Check,
   Circle, CheckCircle2, Share2, Download, Navigation,
 } from 'lucide-react';
-import { getLensCampusInfo } from '@/lib/campus';
+import { decodeCampusRoom } from '@/lib/campus.data';
 import { downloadEventIcs, shareCourseEvent } from '@/lib/calendarExport';
 
 interface CourseDetailModalProps {
@@ -42,8 +42,8 @@ export function CourseDetailModal({
     return () => document.removeEventListener('keydown', handler);
   }, [event, onClose]);
 
-  const campusInfo = React.useMemo(
-    () => (event ? getLensCampusInfo(event.room, event.location) : null),
+  const campusLocation = React.useMemo(
+    () => (event ? decodeCampusRoom(event.room, event.location) : null),
     [event]
   );
 
@@ -230,29 +230,72 @@ export function CourseDetailModal({
                 </div>
               </div>
 
-              {/* Salle + Décodage Campus Lens */}
+              {/* Salle + Décodage Campus Lens piloté par données */}
               <div className="flex items-start gap-4 px-6 sm:px-8 py-4 sm:py-5">
                 <MapPin className="w-5 h-5 mt-0.5 shrink-0 text-[var(--accent)]" strokeWidth={2.2} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                    <p className="text-xs font-mono font-bold text-[var(--muted)]">SALLE & BÂTIMENT</p>
-                    {campusInfo && (
+                    <p className="text-xs font-mono font-bold text-[var(--muted)]">SALLE &amp; LOCALISATION</p>
+                    {campusLocation?.isKnown ? (
                       <span className="text-xs font-mono font-black px-2 py-0.5 rounded-xs border border-[var(--border-2)] bg-[var(--surface-2)] text-[var(--accent)] flex items-center gap-1.5 shadow-tactile-xs">
                         <Navigation className="w-3 h-3" />
-                        {campusInfo.badge}
+                        {campusLocation.badge}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-xs border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                        Salle inconnue dans l&apos;annuaire
                       </span>
                     )}
                   </div>
+
                   <p className="text-sm sm:text-base font-extrabold font-mono" style={{ color: 'var(--text)' }}>
-                    {event.location}
+                    {event.location || event.room || 'Salle non précisée'}
                   </p>
-                  {event.room && event.room !== event.location && (
-                    <p className="text-xs mt-1 font-mono text-[var(--muted)]">Précision : {event.room}</p>
-                  )}
-                  {campusInfo?.note && (
-                    <p className="text-xs mt-1 text-[var(--muted-2)] font-mono">
-                      ↳ {campusInfo.note}
-                    </p>
+
+                  {campusLocation?.isKnown ? (
+                    <div className="mt-2 space-y-1.5 text-xs font-mono">
+                      <div className="flex flex-wrap items-center gap-2 text-[var(--text-2)]">
+                        <span className="font-bold">{campusLocation.building}</span>
+                        <span className="text-[var(--border-2)]">·</span>
+                        <span>{campusLocation.floor}</span>
+                        {campusLocation.capacity && (
+                          <>
+                            <span className="text-[var(--border-2)]">·</span>
+                            <span className="text-[var(--muted)]">Capacité ~{campusLocation.capacity} pl.</span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="text-[11px] text-[var(--muted)]">
+                        <span>PMR : </span>
+                        <span>{campusLocation.accessibility}</span>
+                      </div>
+
+                      {campusLocation.equipment && campusLocation.equipment.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {campusLocation.equipment.map((eq, i) => (
+                            <span
+                              key={i}
+                              className="text-[10px] px-1.5 py-0.5 rounded-xs border border-[var(--border)] bg-[var(--surface-2)] text-[var(--muted)]"
+                            >
+                              {eq}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {campusLocation.note && (
+                        <p className="text-[11px] text-[var(--muted-2)] pt-0.5">
+                          ↳ {campusLocation.note}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-2 p-2.5 rounded-xs border border-dashed border-[var(--border-2)] bg-[var(--surface-2)] text-xs text-[var(--muted)]">
+                      <p className="font-sans">
+                        Cette salle n&apos;est pas encore répertoriée dans notre annuaire automatique de la Faculté des Sciences. Consultez le tableau d&apos;affichage de votre département.
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>

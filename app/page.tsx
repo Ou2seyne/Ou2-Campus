@@ -32,6 +32,9 @@ import { ScheduleEvent } from '@/types/schedule';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { migrateFromLocalStorage } from '@/lib/idb';
+import { RevisionPlannerModal } from '@/components/RevisionPlannerModal';
+import { ScheduleComparatorModal } from '@/components/ScheduleComparatorModal';
+import { decodeHomeworkShare } from '@/lib/homeworkShare';
 
 export default function SchedulePage() {
   const {
@@ -109,6 +112,9 @@ export default function SchedulePage() {
   const [homeworkContextCourse, setHomeworkContextCourse] = useState<string>('');
   const [hudMessage, setHudMessage]                 = useState<string | null>(null);
   const [isFocusMode, setIsFocusMode]               = useState(false);
+  const [isRevisionPlannerOpen, setIsRevisionPlannerOpen] = useState(false);
+  const [revisionTargetExam, setRevisionTargetExam] = useState<ScheduleEvent | null>(null);
+  const [isComparatorOpen, setIsComparatorOpen]     = useState(false);
   const [singleKeyShortcutsEnabled, setSingleKeyShortcutsEnabled] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
     return localStorage.getItem('aura_single_key_shortcuts') !== 'false';
@@ -145,6 +151,24 @@ export default function SchedulePage() {
         if (modalParam === 'exams')    setIsExamRadarOpen(true);
         else if (modalParam === 'homework') setIsHomeworkOpen(true);
         else if (modalParam === 'analytics') setIsAnalyticsOpen(true);
+        else if (modalParam === 'revisions') setIsRevisionPlannerOpen(true);
+        else if (modalParam === 'comparator') setIsComparatorOpen(true);
+
+        const hwShareParam = params.get('hwShare');
+        if (hwShareParam) {
+          const decoded = decodeHomeworkShare(hwShareParam);
+          if (decoded && decoded.items.length > 0) {
+            decoded.items.forEach(it => {
+              addHomework(it.courseTitle, it.text, it.dueDate);
+            });
+            setHudMessage(`${decoded.items.length} devoir(s) importé(s) !`);
+            setTimeout(() => setHudMessage(null), 2500);
+            params.delete('hwShare');
+            const newSearch = params.toString();
+            const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash;
+            window.history.replaceState({}, '', newUrl);
+          }
+        }
 
         if (dateParam && dateParam !== 'today') {
           const d = new Date(dateParam);
@@ -153,7 +177,7 @@ export default function SchedulePage() {
       } catch { /* ignore */ }
     }, 0);
     return () => clearTimeout(timer);
-  }, [setViewMode, setSelectedDate]);
+  }, [setViewMode, setSelectedDate, addHomework]);
 
   // Background refresh on visibility + online events
   useEffect(() => {
@@ -257,6 +281,8 @@ export default function SchedulePage() {
       }
       if (e.key === 'Escape') {
         if (selectedEvent) setSelectedEvent(null);
+        else if (isRevisionPlannerOpen) setIsRevisionPlannerOpen(false);
+        else if (isComparatorOpen) setIsComparatorOpen(false);
         else if (isExamRadarOpen) setIsExamRadarOpen(false);
         else if (isAnalyticsOpen) setIsAnalyticsOpen(false);
         else if (isHomeworkOpen) setIsHomeworkOpen(false);
@@ -317,7 +343,7 @@ export default function SchedulePage() {
   }, [
     handlePrev, handleNext, goToToday, refreshSchedule, setViewMode, viewMode,
     selectedEvent, isExamRadarOpen, isAnalyticsOpen, isHomeworkOpen,
-    isShortcutsOpen, isUrlModalOpen, isFocusMode, palette, singleKeyShortcutsEnabled,
+    isShortcutsOpen, isUrlModalOpen, isFocusMode, isComparatorOpen, isRevisionPlannerOpen, palette, singleKeyShortcutsEnabled,
   ]);
 
   return (
@@ -402,6 +428,8 @@ export default function SchedulePage() {
         onOpenHomework={() => { setHomeworkContextCourse(''); setIsHomeworkOpen(true); palette.close(); }}
         onOpenAnalytics={() => { setIsAnalyticsOpen(true); palette.close(); }}
         onOpenSources={() => { setIsUrlModalOpen(true); palette.close(); }}
+        onOpenRevisionPlanner={() => { setIsRevisionPlannerOpen(true); palette.close(); }}
+        onOpenComparator={() => { setIsComparatorOpen(true); palette.close(); }}
         onRefresh={refreshSchedule}
         onGoToToday={goToToday}
         onSearchChange={setSearchQuery}
@@ -751,7 +779,29 @@ export default function SchedulePage() {
         onClose={() => setIsExamRadarOpen(false)}
         events={filteredEvents}
         onOpenHomework={handleOpenHomeworkWithCourse}
+        onOpenRevisionPlanner={(exam) => {
+          setRevisionTargetExam(exam);
+          setIsRevisionPlannerOpen(true);
+        }}
         nowTimestamp={currentTimestamp}
+      />
+      <RevisionPlannerModal
+        isOpen={isRevisionPlannerOpen}
+        onClose={() => {
+          setIsRevisionPlannerOpen(false);
+          setRevisionTargetExam(null);
+        }}
+        exams={filteredEvents.filter(e => e.category === 'EXAM' || /\bds\b|\bexam/i.test(`${e.summary} ${e.cleanTitle}`))}
+        allEvents={events}
+        initialExamId={revisionTargetExam?.id}
+        onAddHomework={addHomework}
+      />
+      <ScheduleComparatorModal
+        isOpen={isComparatorOpen}
+        onClose={() => setIsComparatorOpen(false)}
+        primaryEvents={filteredEvents}
+        primaryCohortName={selectedSubGroup !== 'ALL' ? `Groupe ${selectedSubGroup}` : (currentSchedule?.name || 'Mon planning')}
+        selectedDate={selectedDate}
       />
       <AnalyticsModal
         isOpen={isAnalyticsOpen}
